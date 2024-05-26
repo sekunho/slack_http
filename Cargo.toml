@@ -1,0 +1,34 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[profile.release]
+lto = true
+
+[workspace.package]
+authors = ["SEKUN <software@sekun.net>"]
+edition = "2021"
+include = ["../../LICENSE", "**/*.rs", "Cargo.toml"]
+license = "AGPL-3.0-only"
+repository = "https://github.com/sekunho/slack_http"
+rust-version = "1.78"
+version = "0.1.0-alpha"
+
+[workspace.dependencies]
+slack_http = { path = "crates/slack_http", version = "0.1.0-alpha" }
+slack_http_types = { path = "crates/slack_http_types", version = "0.1.0-alpha" }
+
+reqwest = { version = "0.12", features = [ "json" ] }
+serde = { version = "1.0", features = [ "derive" ] }
+serde_json = { version = "1.0" }
+config = { version = "0.14" }
+ring = { version = "0.17" }
+time = { version = "0.3" }
+tracing = { version = "0.1" }
+url = { version = "2.5", features = [ "serde" ] }
+
+## Remove
+thiserror = "1.0"
+
+## Only for tests
+tokio = { version = "1.37", features = [ "full" ] }
