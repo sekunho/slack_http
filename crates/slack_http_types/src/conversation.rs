@@ -3,7 +3,6 @@ use time::OffsetDateTime;
 
 use crate::{offset_date_time_from_unix_ts, option::Limit, user};
 
-// LIST CHANNELS
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(transparent)]
 pub struct Id(pub String);
@@ -26,6 +25,7 @@ pub struct Conversation {
     pub is_general: bool,
 }
 
+// LIST CHANNELS
 #[derive(Debug, Deserialize)]
 pub struct ListResponseMetadata {
     pub next_cursor: String,
@@ -51,6 +51,12 @@ pub struct ListOptions {
     pub include_private: bool,
     pub include_mpim: bool,
     pub include_im: bool,
+}
+
+impl Id {
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
 }
 
 impl Default for ListOptions {
@@ -126,10 +132,18 @@ impl ListOptions {
     }
 }
 
-// INVITE TO CHANNEL
+// INVITE TO RESPONSES
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum InviteResponse {
     Ok { channel: Conversation },
+    Error { error: String },
+}
+
+// KICK FROM CHANNEL
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum KickResponse{
+    Ok { ok: bool },
     Error { error: String },
 }

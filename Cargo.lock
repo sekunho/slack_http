@@ -1147,8 +1147,11 @@ dependencies = [
 name = "slack_http_types"
 version = "0.1.0-alpha"
 dependencies = [
+ "reqwest",
  "serde",
+ "thiserror",
  "time",
+ "url",
 ]
 
 [[package]]

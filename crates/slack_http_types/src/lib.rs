@@ -4,6 +4,7 @@ use serde::{de, Deserialize, Deserializer};
 use time::OffsetDateTime;
 
 pub mod conversation;
+pub mod error;
 pub mod option;
 pub mod user;
 
