@@ -6,6 +6,7 @@ use time::OffsetDateTime;
 pub mod conversation;
 pub mod error;
 pub mod option;
+pub mod page;
 pub mod user;
 
 /// Deserializes a UNIX timestamp with milliseconds into an `OffsetDateTime`.

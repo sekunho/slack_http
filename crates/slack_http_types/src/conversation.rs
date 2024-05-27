@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use time::OffsetDateTime;
 
-use crate::{offset_date_time_from_unix_ts, option::Limit, user};
+use crate::{offset_date_time_from_unix_ts, option::Limit, page, user};
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(transparent)]
@@ -27,16 +27,11 @@ pub struct Conversation {
 
 // LIST CHANNELS
 #[derive(Debug, Deserialize)]
-pub struct ListResponseMetadata {
-    pub next_cursor: String,
-}
-
-#[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum ListResponse {
     Ok {
         channels: Vec<Conversation>,
-        response_metadata: ListResponseMetadata,
+        response_metadata: page::ResponseMetadata,
     },
     Error {
         error: String,
@@ -143,7 +138,7 @@ pub enum InviteResponse {
 // KICK FROM CHANNEL
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
-pub enum KickResponse{
+pub enum KickResponse {
     Ok { ok: bool },
     Error { error: String },
 }
@@ -159,4 +154,17 @@ pub struct DirectMessage {
 pub enum OpenResponse {
     Ok { channel: DirectMessage },
     Error { error: String },
+}
+
+// MEMBERS
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum MembersResponse {
+    Ok {
+        members: Vec<user::Id>,
+        response_metadata: page::ResponseMetadata,
+    },
+    Error {
+        error: String,
+    },
 }

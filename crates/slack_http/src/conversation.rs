@@ -1,12 +1,44 @@
 use slack_http_types::{
-    conversation::{InviteResponse, KickResponse, OpenResponse},
+    conversation::{InviteResponse, KickResponse, MembersResponse, OpenResponse},
     error::Error,
+    option::Limit,
+    page::{Cursor, Page},
     user,
 };
 use url::Url;
 
-use crate::{client::AuthClient, page::Page};
+use crate::client::AuthClient;
 pub use slack_http_types::conversation::{Conversation, Id, ListOptions};
+
+pub async fn members(
+    client: &AuthClient,
+    conversation_id: &Id,
+    cursor: &Cursor,
+    limit: Limit,
+) -> Result<Page<user::Id>, Error<String>> {
+    let url = Url::parse_with_params(
+        "https://slack.com/api/conversations.members",
+        &[
+            ("channel", conversation_id.as_str()),
+            ("cursor", cursor.as_str()),
+            ("limit", limit.get().to_string().as_str()),
+        ],
+    )?;
+    let res = client.0.post(url).send().await.map_err(Error::Request)?;
+
+    let json = res
+        .json::<MembersResponse>()
+        .await
+        .map_err(Error::Deserialize)?;
+
+    match json {
+        MembersResponse::Ok {
+            members,
+            response_metadata,
+        } => Ok(Page::new(members, Cursor::from(response_metadata))),
+        MembersResponse::Error { error, .. } => Err(Error::Slack(error)),
+    }
+}
 
 pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error<String>> {
     let url = Url::parse_with_params(
@@ -115,13 +147,13 @@ pub async fn kick(
 pub async fn list(
     client: &AuthClient,
     team_id: &str,
-    cursor: Option<&str>,
+    cursor: &Cursor,
     params: slack_http_types::conversation::ListOptions,
 ) -> Result<Page<Conversation>, Error<String>> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.list",
         &[
-            ("cursor", cursor.unwrap_or("")),
+            ("cursor", cursor.as_str()),
             ("types", params.types_query_param().as_str()),
             ("limit", &params.limit.get().to_string().as_str()),
             ("team_id", team_id),
@@ -147,15 +179,7 @@ pub async fn list(
             channels,
             response_metadata,
             ..
-        } => {
-            let cursor = if response_metadata.next_cursor.as_str() == "" {
-                None
-            } else {
-                Some(response_metadata.next_cursor)
-            };
-
-            Ok(Page::new(channels, cursor))
-        }
+        } => Ok(Page::new(channels, Cursor::from(response_metadata))),
         slack_http_types::conversation::ListResponse::Error { error, .. } => {
             Err(Error::Slack(error))
         }

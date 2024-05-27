@@ -1,5 +1,5 @@
 use slack_http::{client::AuthClient, team};
-use slack_http_types::{option::Limit, user};
+use slack_http_types::{option::Limit, page::Cursor, user};
 
 pub struct TestEnv {
     pub authed_bot_client: AuthClient,
@@ -42,7 +42,7 @@ async fn it_should_list_channels() {
     let channels = slack_http::conversation::list(
         &test_env.authed_bot_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         opts,
     )
     .await
@@ -55,7 +55,7 @@ async fn it_should_list_channels() {
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         opts.include_public(false).include_private(true),
     )
     .await
@@ -79,7 +79,7 @@ async fn it_should_paginate_channels() {
     let channels_1 = slack_http::conversation::list(
         &test_env.authed_user_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         opts,
     )
     .await
@@ -111,7 +111,7 @@ async fn it_should_parse_list_error() {
     let err = slack_http::conversation::list(
         &test_env.invalid_bot_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         opts,
     )
     .await
@@ -140,7 +140,7 @@ async fn it_should_invite_user() {
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         Default::default(),
     )
     .await
@@ -183,7 +183,7 @@ async fn it_should_parse_error() {
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         Default::default(),
     )
     .await
@@ -231,7 +231,7 @@ async fn it_should_kick_user() {
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         Default::default(),
     )
     .await
@@ -277,7 +277,7 @@ async fn it_should_parse_kick_error() {
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
         test_env.team_id.as_str(),
-        None,
+        &Cursor(None),
         Default::default(),
     )
     .await
@@ -354,4 +354,124 @@ async fn it_should_parse_open_conversation_error() {
         .unwrap_err();
 
     assert_eq!(err.get_slack_error().unwrap(), "invalid_auth");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// conversations.members
+
+#[tokio::test]
+async fn it_should_list_members() {
+    let test_env = setup();
+
+    let (users, _) = slack_http::user::list_active_users(
+        &test_env.authed_user_client,
+        team::Id(test_env.team_id.clone()),
+        None,
+    )
+    .await
+    .unwrap();
+
+    let users: Vec<_> = users
+        .into_iter()
+        .filter(|u| u.id.as_str() != "USLACKBOT")
+        .collect();
+
+    let opts = slack_http::conversation::ListOptions::new()
+        .include_public(true)
+        .include_private(false);
+
+    let channels = slack_http::conversation::list(
+        &test_env.authed_user_client,
+        test_env.team_id.as_str(),
+        &Cursor(None),
+        opts,
+    )
+    .await
+    .unwrap();
+
+    let general = channels
+        .results()
+        .into_iter()
+        .find(|c| c.name.as_str() == "general")
+        .unwrap();
+
+    let members = slack_http::conversation::members(
+        &test_env.authed_bot_client,
+        &general.id,
+        &Cursor(None),
+        Default::default(),
+    )
+    .await
+    .unwrap();
+
+    for user in users.into_iter() {
+        assert!(members.results().contains(&user.id))
+    }
+}
+
+#[tokio::test]
+async fn it_should_paginate_members() {
+    let test_env = setup();
+
+    let opts = slack_http::conversation::ListOptions::new()
+        .include_public(true)
+        .include_private(false);
+
+    let channels = slack_http::conversation::list(
+        &test_env.authed_user_client,
+        test_env.team_id.as_str(),
+        &Cursor(None),
+        opts,
+    )
+    .await
+    .unwrap();
+
+    let general = channels
+        .results()
+        .into_iter()
+        .find(|c| c.name.as_str() == "general")
+        .unwrap();
+
+    let members_1 = slack_http::conversation::members(
+        &test_env.authed_bot_client,
+        &general.id,
+        &Cursor(None),
+        Limit::new(1).unwrap(),
+    )
+    .await
+    .unwrap();
+
+    assert!(members_1.results().len() == 1);
+
+    let members_2 = slack_http::conversation::members(
+        &test_env.authed_bot_client,
+        &general.id,
+        members_1.cursor(),
+        Limit::new(1).unwrap(),
+    )
+    .await
+    .unwrap();
+
+    assert!(members_2.results().len() == 1);
+    assert_ne!(members_1.results(), members_2.results());
+}
+
+#[tokio::test]
+async fn it_should_parse_members_error() {
+    let test_env = setup();
+
+    let opts = slack_http::conversation::ListOptions::new()
+        .include_public(true)
+        .include_private(false);
+
+    let err = slack_http::conversation::list(
+        &test_env.invalid_bot_client,
+        test_env.team_id.as_str(),
+        &Cursor(None),
+        opts,
+    )
+    .await
+    .unwrap_err();
+
+    assert_eq!(err.get_slack_error().unwrap(), "invalid_auth")
 }
