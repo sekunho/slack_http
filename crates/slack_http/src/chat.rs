@@ -1,6 +1,4 @@
-use std::num::ParseIntError;
-
-use serde::{de, Deserialize, Deserializer};
+use serde::Deserialize;
 use time::OffsetDateTime;
 
 use crate::client::AuthClient;

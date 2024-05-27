@@ -26,7 +26,7 @@ pub struct BotRefreshToken(String);
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum OAuthV2AccessResponse {
-    Ok(Access),
+    Ok(Box<Access>),
     Error { error: String },
 }
 
@@ -195,7 +195,7 @@ pub async fn v2_access(
     tracing::debug!("Access details {:#?}", json);
 
     match json {
-        OAuthV2AccessResponse::Ok(access) => Ok(access),
+        OAuthV2AccessResponse::Ok(access) => Ok(*access),
         OAuthV2AccessResponse::Error { error, .. } => Err(GetAccessTokenError::Slack(error)),
     }
 }

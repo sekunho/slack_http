@@ -14,6 +14,6 @@ impl Id {
 
 impl Display for Id {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Slack user ID: {}", self)
+        write!(f, "Slack user ID: {}", self.0)
     }
 }

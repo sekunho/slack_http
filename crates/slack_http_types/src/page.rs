@@ -30,7 +30,7 @@ impl<T> Page<T> {
 
 impl From<ResponseMetadata> for Cursor {
     fn from(value: ResponseMetadata) -> Self {
-        if value.next_cursor == "" {
+        if value.next_cursor.is_empty() {
             Self(None)
         } else {
             Self(Some(value.next_cursor))

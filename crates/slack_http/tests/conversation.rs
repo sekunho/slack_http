@@ -48,7 +48,7 @@ async fn it_should_list_channels() {
     .await
     .unwrap();
 
-    for channel in channels.results().into_iter() {
+    for channel in channels.results().iter() {
         assert!(!channel.is_private)
     }
 
@@ -61,7 +61,7 @@ async fn it_should_list_channels() {
     .await
     .unwrap();
 
-    for channel in channels.results().into_iter() {
+    for channel in channels.results().iter() {
         assert!(channel.is_private)
     }
 }
@@ -135,7 +135,7 @@ async fn it_should_invite_user() {
     .await
     .unwrap();
 
-    let user = users.into_iter().find(|u| u.name == "SOCIAL").unwrap();
+    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -178,7 +178,7 @@ async fn it_should_parse_error() {
     .await
     .unwrap();
 
-    let user = users.into_iter().find(|u| u.name == "SOCIAL").unwrap();
+    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -226,7 +226,7 @@ async fn it_should_kick_user() {
     .await
     .unwrap();
 
-    let user = users.into_iter().find(|u| u.name == "SOCIAL").unwrap();
+    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -272,7 +272,7 @@ async fn it_should_parse_kick_error() {
     .await
     .unwrap();
 
-    let user = users.into_iter().find(|u| u.name == "SOCIAL").unwrap();
+    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -372,7 +372,7 @@ async fn it_should_list_members() {
     .unwrap();
 
     let users: Vec<_> = users
-        .into_iter()
+        .iter()
         .filter(|u| u.id.as_str() != "USLACKBOT")
         .collect();
 
@@ -391,7 +391,7 @@ async fn it_should_list_members() {
 
     let general = channels
         .results()
-        .into_iter()
+        .iter()
         .find(|c| c.name.as_str() == "general")
         .unwrap();
 
@@ -404,7 +404,7 @@ async fn it_should_list_members() {
     .await
     .unwrap();
 
-    for user in users.into_iter() {
+    for user in users.iter() {
         assert!(members.results().contains(&user.id))
     }
 }
@@ -428,7 +428,7 @@ async fn it_should_paginate_members() {
 
     let general = channels
         .results()
-        .into_iter()
+        .iter()
         .find(|c| c.name.as_str() == "general")
         .unwrap();
 

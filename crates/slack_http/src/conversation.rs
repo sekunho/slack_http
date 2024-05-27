@@ -100,7 +100,7 @@ pub async fn invite<'channel_id>(
     let json = res
         .json::<slack_http_types::conversation::InviteResponse>()
         .await
-        .map_err(|err| Error::Deserialize(err))?;
+        .map_err(Error::Deserialize)?;
 
     match json {
         InviteResponse::Ok { .. } => Ok(()),
@@ -155,7 +155,7 @@ pub async fn list(
         &[
             ("cursor", cursor.as_str()),
             ("types", params.types_query_param().as_str()),
-            ("limit", &params.limit.get().to_string().as_str()),
+            ("limit", params.limit.get().to_string().as_str()),
             ("team_id", team_id),
         ],
     )?;

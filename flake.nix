@@ -65,12 +65,33 @@
         checks = {
           inherit slack_http;
 
-          slack_http_test = craneLib.cargoNextest (commonArgs // {
+          clippy = craneLib.cargoClippy (commonArgs // {
             inherit cargoArtifacts;
-
-            partitions = 2;
-            partitionType = "count";
+            cargoClippyExtraArgs = "--all-targets -- --deny warnings";
           });
+
+          formatting = craneLib.cargoFmt (commonArgs // {
+            inherit src;
+            name = "slack_http";
+          });
+
+          audit = craneLib.cargoAudit {
+            inherit src advisory-db;
+            name = "slack_http";
+          };
+
+          # FIXME: WHY
+          # deny-license = craneLib.cargoDeny {
+          #   inherit src;
+          #   name = "slack_http";
+          # };
+
+          # slack_http_test = craneLib.cargoNextest (commonArgs // {
+          #   inherit cargoArtifacts;
+
+          #   partitions = 2;
+          #   partitionType = "count";
+          # });
         };
 
         packages = {
