@@ -1,5 +1,5 @@
 use slack_http::{client::AuthClient, team};
-use slack_http_types::option::Limit;
+use slack_http_types::{option::Limit, user};
 
 pub struct TestEnv {
     pub authed_bot_client: AuthClient,
@@ -30,6 +30,7 @@ fn setup() -> TestEnv {
 
 ///////////////////////////////////////////////////////////////////////////////
 // conversations.list
+
 #[tokio::test]
 async fn it_should_list_channels() {
     let test_env = setup();
@@ -121,6 +122,7 @@ async fn it_should_parse_list_error() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // conversations.invite
+
 #[tokio::test]
 async fn it_should_invite_user() {
     let test_env = setup();
@@ -211,6 +213,7 @@ async fn it_should_parse_error() {
 
 ///////////////////////////////////////////////////////////////////////////////
 // conversations.kick
+
 #[tokio::test]
 async fn it_should_kick_user() {
     let test_env = setup();
@@ -298,6 +301,57 @@ async fn it_should_parse_kick_error() {
     )
     .await
     .unwrap_err();
+
+    assert_eq!(err.get_slack_error().unwrap(), "invalid_auth");
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// conversations.open
+
+#[tokio::test]
+async fn it_should_open_conversation_with_users() {
+    let test_env = setup();
+
+    let (users, _) = slack_http::user::list_active_users(
+        &test_env.authed_user_client,
+        team::Id(test_env.team_id.clone()),
+        None,
+    )
+    .await
+    .unwrap();
+
+    let user_ids: Vec<user::Id> = users
+        .into_iter()
+        .filter(|u| u.id.0.as_str() != "USLACKBOT")
+        .map(|u| u.id)
+        .collect();
+
+    let _conversation_id = slack_http::conversation::open(&test_env.authed_bot_client, user_ids)
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn it_should_parse_open_conversation_error() {
+    let test_env = setup();
+
+    let (users, _) = slack_http::user::list_active_users(
+        &test_env.authed_user_client,
+        team::Id(test_env.team_id.clone()),
+        None,
+    )
+    .await
+    .unwrap();
+
+    let user_ids: Vec<user::Id> = users
+        .into_iter()
+        .filter(|u| u.id.0.as_str() != "USLACKBOT")
+        .map(|u| u.id)
+        .collect();
+
+    let err = slack_http::conversation::open(&test_env.invalid_bot_client, user_ids)
+        .await
+        .unwrap_err();
 
     assert_eq!(err.get_slack_error().unwrap(), "invalid_auth");
 }

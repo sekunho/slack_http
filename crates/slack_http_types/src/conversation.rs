@@ -147,3 +147,16 @@ pub enum KickResponse{
     Ok { ok: bool },
     Error { error: String },
 }
+
+// OPEN
+#[derive(Debug, Deserialize)]
+pub struct DirectMessage {
+    pub id: Id,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum OpenResponse {
+    Ok { channel: DirectMessage },
+    Error { error: String },
+}

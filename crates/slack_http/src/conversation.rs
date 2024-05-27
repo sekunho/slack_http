@@ -1,37 +1,35 @@
-use serde::Deserialize;
 use slack_http_types::{
-    conversation::{InviteResponse, KickResponse},
+    conversation::{InviteResponse, KickResponse, OpenResponse},
     error::Error,
+    user,
 };
 use url::Url;
 
 use crate::{client::AuthClient, page::Page};
-pub use slack_http_types::conversation::{Conversation, ListOptions};
+pub use slack_http_types::conversation::{Conversation, Id, ListOptions};
 
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum OpenConversationResponse {
-    Ok { channel: DirectMessage },
-    Error { error: String },
-}
-
-#[derive(Debug, Deserialize)]
-pub struct DirectMessage {
-    pub id: String,
-}
-
-pub async fn open(client: &AuthClient, user_id: &str) -> Result<DirectMessage, Error<String>> {
-    let url = format!("https://slack.com/api/conversations.open?users={}", user_id);
+pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error<String>> {
+    let url = Url::parse_with_params(
+        "https://slack.com/api/conversations.open",
+        &[(
+            "users",
+            user_ids
+                .into_iter()
+                .map(|uid| uid.0)
+                .collect::<Vec<String>>()
+                .join(","),
+        )],
+    )?;
     let res = client.0.post(url).send().await.map_err(Error::Request)?;
 
     let json = res
-        .json::<OpenConversationResponse>()
+        .json::<OpenResponse>()
         .await
         .map_err(Error::Deserialize)?;
 
     match json {
-        OpenConversationResponse::Ok { channel, .. } => Ok(channel),
-        OpenConversationResponse::Error { error, .. } => Err(Error::Slack(error)),
+        OpenResponse::Ok { channel, .. } => Ok(channel.id),
+        OpenResponse::Error { error, .. } => Err(Error::Slack(error)),
     }
 }
 
