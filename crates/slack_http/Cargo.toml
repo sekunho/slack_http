@@ -1,0 +1,29 @@
+[package]
+name = "slack_http"
+description = "an http client for slack's API"
+authors.workspace = true
+edition.workspace = true
+include.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[dependencies]
+# Internal
+slack_http_types = { workspace = true }
+
+# External
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+config = { workspace = true }
+ring = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+url = { workspace = true }
+
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }
