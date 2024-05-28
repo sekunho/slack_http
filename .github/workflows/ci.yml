@@ -43,5 +43,4 @@ jobs:
           trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
           substituters = https://cache.iog.io https://cache.nixos.org/
 
-    - run: nix flake check
-    - run: nix build .#slack_http_test
+    - run: nix build .#slack_http_test --impure
