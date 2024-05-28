@@ -3,7 +3,7 @@ target/**
 **/*.rs.bk
 *.pdb
 .direnv/**
-result/**
+result
 .pre-commit-config.yaml
 .tmp
 **/logfile

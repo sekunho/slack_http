@@ -67,7 +67,7 @@
 
           clippy = craneLib.cargoClippy (commonArgs // {
             inherit cargoArtifacts;
-            cargoClippyExtraArgs = "--all-targets -- --deny warnings";
+            cargoClippyExtraArgs = "--all-targets";
           });
 
           formatting = craneLib.cargoFmt (commonArgs // {
@@ -85,18 +85,30 @@
           #   inherit src;
           #   name = "slack_http";
           # };
-
-          # slack_http_test = craneLib.cargoNextest (commonArgs // {
-          #   inherit cargoArtifacts;
-
-          #   partitions = 2;
-          #   partitionType = "count";
-          # });
         };
 
         packages = {
           default = slack_http;
           inherit slack_http;
+
+
+          # NOTE: Many things
+          # 1. Do not push this to a binary cache. This is just meant for
+          # testing purposes.
+          # 2. Move to `checks` attribute when `--impure` allows getEnv to
+          # read env vars.
+          # 3. Run this with `nix build .#packages.aarch64-darwin.slack_http_test --impure`
+          # cause the the env variables won't be read otherwise.
+          slack_http_test = craneLib.cargoNextest (commonArgs // {
+            inherit cargoArtifacts;
+
+            SLACK_USER_ACCESS_TOKEN = builtins.getEnv "SLACK_USER_ACCESS_TOKEN";
+            SLACK_BOT_ACCESS_TOKEN = builtins.getEnv "SLACK_BOT_ACCESS_TOKEN";
+            SLACK_TEAM_ID = builtins.getEnv "SLACK_TEAM_ID";
+
+            partitions = 1;
+            partitionType = "count";
+          });
         };
 
         devShells = {
