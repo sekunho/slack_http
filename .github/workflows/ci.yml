@@ -13,8 +13,26 @@ env:
   SLACK_TEAM_ID: ${{ secrets.SLACK_TEAM_ID }}
 
 jobs:
-  tests:
+  checks:
     runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: cachix/install-nix-action@v27
+      with:
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
+        extra_nix_config: |
+          trusted-public-keys = hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+          substituters = https://cache.iog.io https://cache.nixos.org/
+
+    - run: nix flake check
+
+  slack_http_test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: slack_http_test
+      cancel-in-progress: true
+
     steps:
     - uses: actions/checkout@v4
 
