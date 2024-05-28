@@ -56,6 +56,8 @@
             pkgs.darwin.apple_sdk.frameworks.Security
             pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
           ];
+
+          nativeBuildInputs = [ pkgs.pkg-config ];
         };
 
         slack_http = craneLib.buildPackage (commonArgs // {
