@@ -41,10 +41,12 @@ pub async fn post_message(
     message: &str,
     opts: &MessageOptions,
 ) -> Result<Message, Error<String>> {
-    let url = Url::parse_with_params(
-        "https://slack.com/api/chat.postMessage",
-        &[("channel", conversation_id.as_str()), ("text", message)],
-    )?;
+    let mut query_params = opts.query_params();
+
+    query_params.push(("channel", conversation_id.as_str()));
+    query_params.push(("text", message));
+
+    let url = Url::parse_with_params("https://slack.com/api/chat.postMessage", &query_params)?;
     let res = client.0.post(url).send().await.map_err(Error::Request)?;
 
     let json = res

@@ -33,6 +33,51 @@ impl MessageOptions {
     pub fn new() -> Self {
         Default::default()
     }
+
+    pub fn set_icon_emoji(self, icon_emoji: String) -> Self {
+        let icon_emoji = format!(":{icon_emoji}:");
+
+        Self {
+            icon_emoji: Some(icon_emoji),
+            ..self
+        }
+    }
+
+    pub fn set_username(self, username: String) -> Self {
+        Self {
+            username: Some(username),
+            ..self
+        }
+    }
+
+    pub fn query_params(&self) -> Vec<(&str, &str)> {
+        let mut opts = Vec::new();
+
+        if let Some(username) = &self.username {
+            opts.push(("username", username.as_str()))
+        }
+
+        if let Some(icon_emoji) = &self.icon_emoji {
+            opts.push(("icon_emoji", icon_emoji.as_str()))
+        }
+
+        if let Some(icon_url) = &self.icon_url {
+            opts.push(("icon_url", icon_url.as_str()))
+        }
+
+        opts.push(("link_names", if self.link_names { "true" } else { "false" }));
+        opts.push(("mrkdwn", if self.markdown { "true" } else { "false" }));
+
+        if let Some(unfurl_links) = self.unfurl_links {
+            opts.push(("unfurl_links", if unfurl_links { "true" } else { "false" }));
+        }
+
+        if let Some(unfurl_media) = self.unfurl_media {
+            opts.push(("unfurl_media", if unfurl_media { "true" } else { "false" }));
+        }
+
+        opts
+    }
 }
 
 impl Default for MessageOptions {
@@ -46,11 +91,5 @@ impl Default for MessageOptions {
             unfurl_media: None,
             username: None,
         }
-    }
-}
-
-impl Into<Vec<(String, String)>> for MessageOptions {
-    fn into(self) -> Vec<(String, String)> {
-        vec![]
     }
 }

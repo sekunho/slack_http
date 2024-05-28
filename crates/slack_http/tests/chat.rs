@@ -33,7 +33,9 @@ fn setup() -> TestEnv {
 #[tokio::test]
 async fn bot_should_post_message() {
     let test_env = setup();
-    let opts = MessageOptions::new();
+    let opts = MessageOptions::new()
+        .set_icon_emoji("taco".to_string())
+        .set_username("SLACK_HTTP".to_string());
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
