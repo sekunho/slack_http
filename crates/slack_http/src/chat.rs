@@ -11,13 +11,11 @@ pub use slack_http_types::chat::{Message, MessageOptions};
 #[serde(untagged)]
 enum MessageResponse {
     Ok {
-        ok: bool,
         channel: String,
         message: Message,
         ts: String,
     },
     Error {
-        ok: bool,
         error: String,
     },
 }

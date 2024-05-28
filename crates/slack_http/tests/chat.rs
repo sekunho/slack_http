@@ -35,7 +35,7 @@ async fn bot_should_post_message() {
     let test_env = setup();
     let opts = MessageOptions::new()
         .set_icon_emoji("taco".to_string())
-        .set_username("SLACK_HTTP".to_string());
+        .set_username("who am i".to_string());
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -55,13 +55,14 @@ async fn bot_should_post_message() {
     let message = slack_http::chat::post_message(
         &test_env.authed_bot_client,
         &test_channel.id,
-        "Hello, world!",
+        "Hello, world! (from bot)",
         &opts,
     )
     .await
     .unwrap();
 
-    assert_eq!(message.text.as_str(), "Hello, world!")
+    assert_eq!(message.text(), "Hello, world! (from bot)");
+    assert_eq!(message.username().unwrap(), "who am i");
 }
 
 #[tokio::test]
@@ -87,13 +88,13 @@ async fn user_should_post_message() {
     let message = slack_http::chat::post_message(
         &test_env.authed_user_client,
         &test_channel.id,
-        "Hello, world! (from bot)",
+        "Hello, world! (from user)",
         &opts,
     )
     .await
     .unwrap();
 
-    assert_eq!(message.text.as_str(), "Hello, world! (from bot)")
+    assert_eq!(message.text(), "Hello, world! (from user)")
 }
 
 #[tokio::test]
