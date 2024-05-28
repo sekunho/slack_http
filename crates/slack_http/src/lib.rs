@@ -13,6 +13,11 @@ pub mod oidc;
 pub mod team;
 pub mod user;
 
+pub use slack_http_types::{
+    error::Error,
+    page::{Cursor, Limit},
+};
+
 #[derive(Debug, Error)]
 pub enum VerificationError {
     #[error("computed digest and slack's signature do not match")]
@@ -23,14 +28,6 @@ pub enum VerificationError {
     TimestampTooOld,
     #[error("timestamp is not in a valid UNIX timestamp format")]
     InvalidTimestamp,
-}
-
-pub struct Cursor(pub(crate) String);
-
-impl Cursor {
-    pub fn get(&self) -> &str {
-        self.0.as_str()
-    }
 }
 
 /// Verifies if the request's body is from Slack.

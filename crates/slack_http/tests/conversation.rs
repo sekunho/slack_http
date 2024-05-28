@@ -1,5 +1,4 @@
-use slack_http::{client::AuthClient, team};
-use slack_http_types::{option::Limit, page::Cursor, user};
+use slack_http::{client::AuthClient, team, user, Cursor, Limit};
 
 pub struct TestEnv {
     pub authed_bot_client: AuthClient,

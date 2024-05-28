@@ -1,5 +1,4 @@
-use slack_http::client::AuthClient;
-use slack_http_types::{chat::MessageOptions, page::Cursor};
+use slack_http::{chat::MessageOptions, client::AuthClient, Cursor};
 
 pub struct TestEnv {
     pub authed_bot_client: AuthClient,

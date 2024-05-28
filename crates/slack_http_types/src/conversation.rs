@@ -1,7 +1,11 @@
 use serde::Deserialize;
 use time::OffsetDateTime;
 
-use crate::{offset_date_time_from_unix_ts, option::Limit, page, user};
+use crate::{
+    offset_date_time_from_unix_ts,
+    page::{self, Limit},
+    user,
+};
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 #[serde(transparent)]

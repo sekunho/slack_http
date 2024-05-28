@@ -1,9 +1,11 @@
 use serde::Deserialize;
-use slack_http_types::{chat::{Message, MessageOptions}, conversation, error::Error};
+use slack_http_types::{conversation, error::Error};
 use time::OffsetDateTime;
 use url::Url;
 
 use crate::client::AuthClient;
+
+pub use slack_http_types::chat::{Message, MessageOptions};
 
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
@@ -41,10 +43,7 @@ pub async fn post_message(
 ) -> Result<Message, Error<String>> {
     let url = Url::parse_with_params(
         "https://slack.com/api/chat.postMessage",
-        &[
-            ("channel", conversation_id.as_str()),
-            ("text", message),
-        ],
+        &[("channel", conversation_id.as_str()), ("text", message)],
     )?;
     let res = client.0.post(url).send().await.map_err(Error::Request)?;
 
