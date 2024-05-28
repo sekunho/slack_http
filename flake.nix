@@ -47,6 +47,7 @@
           name = "slack_http";
           pname = "slack_http";
           strictDeps = true;
+          doCheck = false;
 
           buildInputs = [
             pkgs.openssl
@@ -94,7 +95,6 @@
           default = slack_http;
           inherit slack_http;
 
-
           # NOTE: Many things
           # 1. Do not push this to a binary cache. This is just meant for
           # testing purposes.
@@ -104,6 +104,7 @@
           # cause the the env variables won't be read otherwise.
           slack_http_test = craneLib.cargoNextest (commonArgs // {
             inherit cargoArtifacts;
+            doCheck = true;
 
             SLACK_USER_ACCESS_TOKEN = builtins.getEnv "SLACK_USER_ACCESS_TOKEN";
             SLACK_BOT_ACCESS_TOKEN = builtins.getEnv "SLACK_BOT_ACCESS_TOKEN";
