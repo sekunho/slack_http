@@ -1,24 +1,10 @@
 use serde::Deserialize;
-use slack_http_types::{conversation, error::Error};
+use slack_http_types::{chat::MessageResponse, conversation, error::Error};
 use time::OffsetDateTime;
 use url::Url;
 
 use crate::client::AuthClient;
-
 pub use slack_http_types::chat::{Message, MessageOptions};
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum MessageResponse {
-    Ok {
-        channel: String,
-        message: Message,
-        ts: String,
-    },
-    Error {
-        error: String,
-    },
-}
 
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]

@@ -22,6 +22,13 @@ pub struct MessageOptions {
 
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
+pub enum MessageResponse {
+    Ok { message: Message },
+    Error { error: String },
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
 pub enum Message {
     User {
         bot_id: String,
