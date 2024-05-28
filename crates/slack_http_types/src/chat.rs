@@ -54,7 +54,7 @@ impl Message {
     pub fn username(&self) -> Option<&str> {
         match self {
             Message::User { .. } => None,
-            Message::Username { username , .. } => Some(username.as_str()),
+            Message::Username { username, .. } => Some(username.as_str()),
         }
     }
 }
