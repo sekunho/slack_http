@@ -14,7 +14,7 @@ env:
 
 jobs:
   checks:
-    runs-on: [ubuntu-latest, macos-latest]
+    runs-on: [ubuntu-latest]
     steps:
     - uses: actions/checkout@v4
 
@@ -28,7 +28,7 @@ jobs:
     - run: nix flake check
 
   slack_http_test:
-    runs-on: [ubuntu-latest, macos-latest]
+    runs-on: [ubuntu-latest]
     concurrency:
       group: slack_http_test
       cancel-in-progress: true
