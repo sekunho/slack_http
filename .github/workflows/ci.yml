@@ -1,8 +1,17 @@
-name: "CI"
+name: CI
+
 on:
   pull_request:
+
   push:
-    - main
+    branches:
+      - main
+
+env:
+  SLACK_USER_ACCESS_TOKEN: ${{ secrets.SLACK_USER_ACCESS_TOKEN }}
+  SLACK_BOT_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
+  SLACK_TEAM_ID: ${{ secrets.SLACK_TEAM_ID }}
+
 jobs:
   tests:
     runs-on: ubuntu-latest
