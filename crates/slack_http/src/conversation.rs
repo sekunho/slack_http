@@ -1,8 +1,7 @@
 use slack_http_types::{
     conversation::{InviteResponse, KickResponse, MembersResponse, OpenResponse},
     error::Error,
-    option::Limit,
-    page::{Cursor, Page},
+    page::{Cursor, Limit, Page},
     user,
 };
 use url::Url;

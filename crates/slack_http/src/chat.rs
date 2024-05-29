@@ -1,106 +1,64 @@
-use serde::Deserialize;
+use slack_http_types::{
+    chat::{EphemeralResponse, MessageResponse},
+    conversation,
+    error::Error,
+    user,
+};
 use time::OffsetDateTime;
+use url::Url;
 
 use crate::client::AuthClient;
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum MessageResponse {
-    Ok {
-        ok: bool,
-        channel: String,
-        message: Message,
-        ts: String,
-    },
-    Error {
-        ok: bool,
-        error: String,
-    },
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-enum EphemeralMessageResponse {
-    Ok {
-        #[serde(rename = "message_ts")]
-        #[serde(deserialize_with = "slack_http_types::offset_date_time_from_unix_ts_with_nano")]
-        timestamp: OffsetDateTime,
-    },
-    Error {
-        error: String,
-    },
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Message {
-    pub bot_id: String,
-    pub text: String,
-    pub user: String,
-    pub app_id: String,
-    #[serde(rename = "ts")]
-    #[serde(deserialize_with = "slack_http_types::offset_date_time_from_unix_ts_with_nano")]
-    pub timestamp: OffsetDateTime,
-}
-
-#[derive(Debug)]
-pub enum PostMessageError {
-    Slack(String),
-    Request(reqwest::Error),
-    Deserialize(reqwest::Error),
-}
+pub use slack_http_types::chat::{Message, MessageOptions};
 
 pub async fn post_message(
     client: &AuthClient,
-    channel_id: &str,
+    conversation_id: &conversation::Id,
     message: &str,
-) -> Result<Message, PostMessageError> {
-    let url = format!(
-        "https://slack.com/api/chat.postMessage?channel={}&text={}",
-        channel_id, message
-    );
-    let res = client
-        .0
-        .post(url)
-        .send()
-        .await
-        .map_err(PostMessageError::Request)?;
+    opts: &MessageOptions,
+) -> Result<Message, Error<String>> {
+    let mut query_params = opts.query_params();
+
+    query_params.push(("channel", conversation_id.as_str()));
+    query_params.push(("text", message));
+
+    let url = Url::parse_with_params("https://slack.com/api/chat.postMessage", &query_params)?;
+    let res = client.0.post(url).send().await.map_err(Error::Request)?;
 
     let json = res
         .json::<MessageResponse>()
         .await
-        .map_err(PostMessageError::Deserialize)?;
+        .map_err(Error::Deserialize)?;
 
     match json {
         MessageResponse::Ok { message, .. } => Ok(message),
-        MessageResponse::Error { error, .. } => Err(PostMessageError::Slack(error)),
+        MessageResponse::Error { error, .. } => Err(Error::Slack(error)),
     }
 }
 
 pub async fn post_ephemeral(
     client: &AuthClient,
-    channel_id: &str,
-    user_id: &str,
+    conversation_id: &conversation::Id,
+    user_id: &user::Id,
     message: &str,
-) -> Result<(), PostMessageError> {
-    let url = format!(
-        "https://slack.com/api/chat.postEphemeral?channel={}&user={}&text={}",
-        channel_id, user_id, message
-    );
+    opts: &MessageOptions,
+) -> Result<OffsetDateTime, Error<String>> {
+    let mut query_params = opts.query_params();
+
+    query_params.push(("channel", conversation_id.as_str()));
+    query_params.push(("user", user_id.as_str()));
+    query_params.push(("text", message));
+
+    let url = Url::parse_with_params("https://slack.com/api/chat.postEphemeral", &query_params)?;
     tracing::debug!("Requesting {}", url);
-    let res = client
-        .0
-        .post(url)
-        .send()
-        .await
-        .map_err(PostMessageError::Request)?;
+    let res = client.0.post(url).send().await.map_err(Error::Request)?;
 
     let json = res
-        .json::<EphemeralMessageResponse>()
+        .json::<EphemeralResponse>()
         .await
-        .map_err(PostMessageError::Deserialize)?;
+        .map_err(Error::Deserialize)?;
 
     match json {
-        EphemeralMessageResponse::Ok { .. } => Ok(()),
-        EphemeralMessageResponse::Error { error, .. } => Err(PostMessageError::Slack(error)),
+        EphemeralResponse::Ok { timestamp } => Ok(timestamp),
+        EphemeralResponse::Error { error, .. } => Err(Error::Slack(error)),
     }
 }

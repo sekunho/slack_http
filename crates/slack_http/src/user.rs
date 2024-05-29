@@ -1,9 +1,10 @@
 use reqwest::Url;
 use serde::Deserialize;
-use slack_http_types::user::Id;
 use thiserror::Error;
 
 use crate::client::AuthClient;
+
+pub use slack_http_types::user::Id;
 
 #[derive(Debug, Deserialize, Eq, PartialEq)]
 pub struct Cursor(String);
