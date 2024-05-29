@@ -1,4 +1,4 @@
-use slack_http::{chat::MessageOptions, client::AuthClient, Cursor};
+use slack_http::{chat::MessageOptions, client::AuthClient, team, Cursor};
 
 pub struct TestEnv {
     pub authed_bot_client: AuthClient,
@@ -61,8 +61,8 @@ async fn bot_should_post_message() {
     .await
     .unwrap();
 
-    assert_eq!(message.text(), "Hello, world! (from bot)");
-    assert_eq!(message.username().unwrap(), "who am i");
+    assert_eq!(message.text.as_str(), "Hello, world! (from bot)");
+    assert_eq!(message.username.unwrap().as_str(), "who am i");
 }
 
 #[tokio::test]
@@ -94,7 +94,7 @@ async fn user_should_post_message() {
     .await
     .unwrap();
 
-    assert_eq!(message.text(), "Hello, world! (from user)")
+    assert_eq!(message.text.as_str(), "Hello, world! (from user)")
 }
 
 #[tokio::test]
@@ -120,6 +120,137 @@ async fn it_should_parse_post_message_error() {
     let err = slack_http::chat::post_message(
         &test_env.invalid_bot_client,
         &test_channel.id,
+        "Hello, world!",
+        &opts,
+    )
+    .await
+    .unwrap_err();
+
+    assert_eq!(err.get_slack_error().unwrap().as_str(), "invalid_auth")
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// chat.postEphemeral
+
+#[tokio::test]
+async fn bot_should_post_ephemeral_message() {
+    let test_env = setup();
+
+    let opts = MessageOptions::new()
+        .set_icon_emoji("taco".to_string())
+        .set_username("who am i".to_string());
+
+    let channels = slack_http::conversation::list(
+        &test_env.authed_user_client,
+        test_env.team_id.as_str(),
+        &Cursor(None),
+        Default::default(),
+    )
+    .await
+    .unwrap();
+
+    let test_channel = channels
+        .results()
+        .iter()
+        .find(|c| c.name == "test_post_ephemeral")
+        .unwrap();
+
+    let (users, _) = slack_http::user::list_active_users(
+        &test_env.authed_user_client,
+        team::Id(test_env.team_id.clone()),
+        None,
+    )
+    .await
+    .unwrap();
+
+    let user = users.iter().find(|u| u.name == "OWNER").unwrap();
+
+    let _message = slack_http::chat::post_ephemeral(
+        &test_env.authed_bot_client,
+        &test_channel.id,
+        &user.id,
+        "Hello, world! (from bot)",
+        &opts,
+    )
+    .await
+    .unwrap();
+}
+
+#[tokio::test]
+async fn user_should_post_ephemeral_message() {
+    let test_env = setup();
+    let opts = MessageOptions::new();
+
+    let channels = slack_http::conversation::list(
+        &test_env.authed_user_client,
+        test_env.team_id.as_str(),
+        &Cursor(None),
+        Default::default(),
+    )
+    .await
+    .unwrap();
+
+    let test_channel = channels
+        .results()
+        .iter()
+        .find(|c| c.name == "test_post_ephemeral")
+        .unwrap();
+
+    let (users, _) = slack_http::user::list_active_users(
+        &test_env.authed_user_client,
+        team::Id(test_env.team_id.clone()),
+        None,
+    )
+    .await
+    .unwrap();
+
+    let user = users.iter().find(|u| u.name == "OWNER").unwrap();
+
+    let _message = slack_http::chat::post_ephemeral(
+        &test_env.authed_user_client,
+        &test_channel.id,
+        &user.id,
+        "Hello, world! (from user)",
+        &opts,
+    )
+    .await
+    .unwrap();
+}
+
+#[tokio::test]
+async fn it_should_parse_post_ephemeral_message_error() {
+    let test_env = setup();
+    let opts = MessageOptions::new();
+
+    let channels = slack_http::conversation::list(
+        &test_env.authed_user_client,
+        test_env.team_id.as_str(),
+        &Cursor(None),
+        Default::default(),
+    )
+    .await
+    .unwrap();
+
+    let test_channel = channels
+        .results()
+        .iter()
+        .find(|c| c.name == "test_post_ephemeral")
+        .unwrap();
+
+    let (users, _) = slack_http::user::list_active_users(
+        &test_env.authed_user_client,
+        team::Id(test_env.team_id.clone()),
+        None,
+    )
+    .await
+    .unwrap();
+
+    let user = users.iter().find(|u| u.name == "OWNER").unwrap();
+
+    let err = slack_http::chat::post_ephemeral(
+        &test_env.invalid_bot_client,
+        &test_channel.id,
+        &user.id,
         "Hello, world!",
         &opts,
     )

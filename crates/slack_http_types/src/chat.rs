@@ -4,7 +4,6 @@ use url::Url;
 
 use crate::user;
 
-// POST MESSAGE
 // TODO: Add the following options:
 // 1. thread_ts
 // 2. reply_broadcast
@@ -28,42 +27,28 @@ pub enum MessageResponse {
 }
 
 #[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum Message {
-    User {
-        bot_id: String,
-        text: String,
-        user: user::Id,
-        app_id: String,
-        #[serde(rename = "ts")]
-        #[serde(deserialize_with = "crate::offset_date_time_from_unix_ts_with_nano")]
-        timestamp: OffsetDateTime,
-    },
-    Username {
-        bot_id: String,
-        text: String,
-        username: String,
-        app_id: String,
-        #[serde(rename = "ts")]
-        #[serde(deserialize_with = "crate::offset_date_time_from_unix_ts_with_nano")]
-        timestamp: OffsetDateTime,
-    },
+pub struct Message {
+    pub bot_id: String,
+    pub text: String,
+    pub user: Option<user::Id>,
+    pub username: Option<String>,
+    pub app_id: String,
+    #[serde(rename = "ts")]
+    #[serde(deserialize_with = "crate::offset_date_time_from_unix_ts_with_nano")]
+    pub timestamp: OffsetDateTime,
 }
 
-impl Message {
-    pub fn text(&self) -> &str {
-        match self {
-            Message::User { text, .. } => text.as_str(),
-            Message::Username { text, .. } => text.as_str(),
-        }
-    }
-
-    pub fn username(&self) -> Option<&str> {
-        match self {
-            Message::User { .. } => None,
-            Message::Username { username, .. } => Some(username.as_str()),
-        }
-    }
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum EphemeralResponse {
+    Ok {
+        #[serde(rename = "message_ts")]
+        #[serde(deserialize_with = "crate::offset_date_time_from_unix_ts_with_nano")]
+        timestamp: OffsetDateTime,
+    },
+    Error {
+        error: String,
+    },
 }
 
 impl MessageOptions {
