@@ -3,26 +3,12 @@ use std::collections::HashMap;
 use crate::client::AuthClient;
 use reqwest::Url;
 use serde::Deserialize;
+use slack_http_types::team::Team;
 use thiserror::Error;
 
 pub use slack_http_types::team::Id;
 
 const GET_TEAM_INFO: &str = "https://slack.com/api/team.info";
-
-#[derive(Debug, Deserialize)]
-pub struct Team {
-    pub id: Id,
-    pub name: String,
-    pub domain: String,
-    pub icon: Icon,
-    // pub enterprise_id: String,
-    // pub enterprise_name: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Icon {
-    pub image_132: Url,
-}
 
 #[derive(Deserialize)]
 #[serde(untagged)]

@@ -20,7 +20,7 @@ pub enum CreateClientError {
 impl AuthClient {
     pub fn new(token: OauthToken) -> Result<Self, CreateClientError> {
         let mut headers = HeaderMap::new();
-        let bearer_token: HeaderValue = format!("Bearer {}", token.value()).parse()?;
+        let bearer_token: HeaderValue = format!("Bearer {}", token.0).parse()?;
         headers.insert("Authorization", bearer_token);
 
         let client = reqwest::Client::builder()

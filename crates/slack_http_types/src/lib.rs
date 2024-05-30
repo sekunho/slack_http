@@ -7,12 +7,12 @@ pub mod chat;
 pub mod client;
 pub mod conversation;
 pub mod error;
+pub mod oauth;
 pub mod oidc;
 pub mod option;
 pub mod page;
 pub mod team;
 pub mod user;
-pub mod oauth;
 
 /// Deserializes a UNIX timestamp with milliseconds into an `OffsetDateTime`.
 pub fn offset_date_time_from_unix_ts<'de, D>(deserializer: D) -> Result<OffsetDateTime, D::Error>

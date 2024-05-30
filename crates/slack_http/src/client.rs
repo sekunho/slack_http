@@ -1,1 +1,1 @@
-pub use slack_http_types::client::{BasicClient, AuthClient, CreateClientError};
+pub use slack_http_types::client::{AuthClient, BasicClient, CreateClientError};

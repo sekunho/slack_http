@@ -23,7 +23,12 @@ pub async fn members(
             ("limit", limit.get().to_string().as_str()),
         ],
     )?;
-    let res = auth_client.client().post(url).send().await.map_err(Error::Request)?;
+    let res = auth_client
+        .client()
+        .post(url)
+        .send()
+        .await
+        .map_err(Error::Request)?;
 
     let json = res
         .json::<MembersResponse>()
@@ -51,7 +56,12 @@ pub async fn open(auth_client: &AuthClient, user_ids: Vec<user::Id>) -> Result<I
                 .join(","),
         )],
     )?;
-    let res = auth_client.client().post(url).send().await.map_err(Error::Request)?;
+    let res = auth_client
+        .client()
+        .post(url)
+        .send()
+        .await
+        .map_err(Error::Request)?;
 
     let json = res
         .json::<OpenResponse>()
