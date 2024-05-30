@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use url::Url;
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 #[serde(transparent)]
 pub struct Id(pub String);
 

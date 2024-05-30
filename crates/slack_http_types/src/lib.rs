@@ -8,7 +8,7 @@ pub mod client;
 pub mod conversation;
 pub mod error;
 pub mod oauth;
-pub mod oidc;
+pub mod openid;
 pub mod option;
 pub mod page;
 pub mod team;

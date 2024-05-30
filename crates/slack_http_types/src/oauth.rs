@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::user;
+
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(transparent)]
 pub struct AccessToken(pub String);
@@ -31,7 +33,7 @@ pub struct Access {
     #[serde(rename = "refresh_token")]
     pub bot_refresh_token: RefreshToken,
     pub expires_in: u64,
-    pub bot_user_id: String,
+    pub bot_user_id: user::Id,
     pub app_id: String,
     pub scope: String,
     pub team: Team,
