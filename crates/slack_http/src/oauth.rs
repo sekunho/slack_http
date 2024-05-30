@@ -9,7 +9,7 @@ use slack_http_types::{
 };
 
 pub use slack_http_types::oauth::{
-    Access, Code, AccessToken, RefreshToken, RefreshedAccess, Team, TokenType,
+    Access, AccessToken, Code, RefreshToken, RefreshedAccess, Team, TokenType,
 };
 
 const V2_ACCESS: &str = "https://slack.com/api/oauth.v2.access";

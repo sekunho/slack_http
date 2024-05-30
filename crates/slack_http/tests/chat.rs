@@ -160,13 +160,10 @@ async fn bot_should_post_ephemeral_message() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        &test_env.team_id,
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "OWNER").unwrap();
 
@@ -201,13 +198,10 @@ async fn user_should_post_ephemeral_message() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        &test_env.team_id,
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "OWNER").unwrap();
 
@@ -242,13 +236,10 @@ async fn it_should_parse_post_ephemeral_message_error() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        &test_env.team_id,
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "OWNER").unwrap();
 

@@ -1,7 +1,9 @@
 use crate::client::{AuthClient, BasicClient};
 use reqwest::Url;
 use slack_http_types::{
-    error::Error, oauth::{AccessToken, Code}, openid::{TokenResponse, UserInfoResponse}
+    error::Error,
+    oauth::{AccessToken, Code},
+    openid::{TokenResponse, UserInfoResponse},
 };
 use std::collections::HashMap;
 

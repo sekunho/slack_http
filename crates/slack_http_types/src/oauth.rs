@@ -16,6 +16,8 @@ pub struct Team {
     pub name: String,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(transparent)]
 pub struct Code(pub String);
 
 // ACCESS

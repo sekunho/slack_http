@@ -131,13 +131,10 @@ async fn it_should_parse_list_error() {
 async fn it_should_invite_user() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        &test_env.team_id,
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
@@ -268,13 +265,10 @@ async fn it_should_kick_user() {
 async fn it_should_parse_kick_error() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        &test_env.team_id,
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
@@ -316,13 +310,10 @@ async fn it_should_parse_kick_error() {
 async fn it_should_open_conversation_with_users() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        &test_env.team_id,
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user_ids: Vec<user::Id> = users
         .into_iter()
@@ -339,13 +330,10 @@ async fn it_should_open_conversation_with_users() {
 async fn it_should_parse_open_conversation_error() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        &test_env.team_id,
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user_ids: Vec<user::Id> = users
         .into_iter()
