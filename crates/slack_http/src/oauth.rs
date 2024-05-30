@@ -5,10 +5,10 @@ use url::Url;
 
 use slack_http_types::{
     error::Error,
-    oauth::{Access, OAuthV2AccessResponse, OAuthV2RefreshResponse, RefreshedAccess},
+    oauth::{OAuthV2AccessResponse, OAuthV2RefreshResponse},
 };
 
-pub use slack_http_types::oauth::OauthToken;
+pub use slack_http_types::oauth::{Access, OauthToken, RefreshToken, RefreshedAccess, Team};
 
 const V2_ACCESS: &str = "https://slack.com/api/oauth.v2.access";
 
@@ -21,7 +21,6 @@ pub async fn v2_refresh_access(
     client_secret: &str,
     refresh_token: &str,
 ) -> Result<RefreshedAccess, Error> {
-    tracing::info!("POST https://slack.com/api/oauth.v2.access");
     let mut params = HashMap::new();
 
     params.insert("client_id", client_id);
@@ -29,7 +28,7 @@ pub async fn v2_refresh_access(
     params.insert("refresh_token", refresh_token);
     params.insert("grant_type", "refresh_token");
 
-    let url = Url::parse(V2_ACCESS).expect("not a URL");
+    let url = Url::parse(V2_ACCESS)?;
 
     let res = basic_client
         .client()
@@ -39,12 +38,12 @@ pub async fn v2_refresh_access(
         .await
         .map_err(Error::Request)?;
 
+    tracing::info!("POST {} -> {}", V2_ACCESS, res.status());
+
     let json = res
         .json::<OAuthV2RefreshResponse>()
         .await
         .map_err(Error::Deserialize)?;
-
-    tracing::debug!("Access details {:#?}", json);
 
     match json {
         OAuthV2RefreshResponse::Ok(access) => Ok(access),
@@ -66,7 +65,7 @@ pub async fn v2_access(
     params.insert("code", code);
     params.insert("redirect_uri", redirect_uri);
 
-    let url = Url::parse(V2_ACCESS).expect("not a URL");
+    let url = Url::parse(V2_ACCESS)?;
 
     let res = basic_client
         .client()
@@ -76,12 +75,12 @@ pub async fn v2_access(
         .await
         .map_err(Error::Request)?;
 
+    tracing::info!("POST {} -> {}", V2_ACCESS, res.status());
+
     let json = res
         .json::<OAuthV2AccessResponse>()
         .await
         .map_err(Error::Deserialize)?;
-
-    tracing::debug!("Access details {:#?}", json);
 
     match json {
         OAuthV2AccessResponse::Ok(access) => Ok(*access),
