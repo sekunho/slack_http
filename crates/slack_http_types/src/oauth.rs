@@ -14,6 +14,8 @@ pub struct Team {
     pub name: String,
 }
 
+pub struct Code(pub String);
+
 // ACCESS
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]

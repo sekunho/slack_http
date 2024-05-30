@@ -8,7 +8,7 @@ use slack_http_types::{
     oauth::{OAuthV2AccessResponse, OAuthV2RefreshResponse},
 };
 
-pub use slack_http_types::oauth::{Access, OauthToken, RefreshToken, RefreshedAccess, Team};
+pub use slack_http_types::oauth::{Access, Code, OauthToken, RefreshToken, RefreshedAccess, Team};
 
 const V2_ACCESS: &str = "https://slack.com/api/oauth.v2.access";
 
@@ -19,13 +19,13 @@ pub async fn v2_refresh_access(
     basic_client: &BasicClient,
     client_id: &str,
     client_secret: &str,
-    refresh_token: &str,
+    refresh_token: &RefreshToken,
 ) -> Result<RefreshedAccess, Error> {
     let mut params = HashMap::new();
 
     params.insert("client_id", client_id);
     params.insert("client_secret", client_secret);
-    params.insert("refresh_token", refresh_token);
+    params.insert("refresh_token", refresh_token.0.as_str());
     params.insert("grant_type", "refresh_token");
 
     let url = Url::parse(V2_ACCESS)?;
@@ -55,14 +55,14 @@ pub async fn v2_access(
     basic_client: &BasicClient,
     client_id: &str,
     client_secret: &str,
-    code: &str,
+    code: &Code,
     redirect_uri: &str,
 ) -> Result<Access, Error> {
     let mut params = HashMap::new();
 
     params.insert("client_id", client_id);
     params.insert("client_secret", client_secret);
-    params.insert("code", code);
+    params.insert("code", code.0.as_str());
     params.insert("redirect_uri", redirect_uri);
 
     let url = Url::parse(V2_ACCESS)?;
