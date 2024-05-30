@@ -38,7 +38,7 @@ pub async fn v2_refresh_access(
         .await
         .map_err(Error::Request)?;
 
-    tracing::info!("POST {} -> {}", V2_ACCESS, res.status());
+    tracing::info!("POST {} -> {} (refresh)", V2_ACCESS, res.status());
 
     let json = res
         .json::<OAuthV2RefreshResponse>()

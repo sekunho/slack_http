@@ -3,11 +3,12 @@ use thiserror::Error;
 
 use crate::oauth::OauthToken;
 
+// TODO: Set visibility back to pub(crate)
 #[derive(Clone, Debug)]
-pub struct BasicClient(pub(crate) reqwest::Client);
+pub struct BasicClient(pub reqwest::Client);
 
 #[derive(Clone, Debug)]
-pub struct AuthClient(pub(crate) reqwest::Client);
+pub struct AuthClient(pub reqwest::Client);
 
 #[derive(Debug, Error)]
 pub enum CreateClientError {
