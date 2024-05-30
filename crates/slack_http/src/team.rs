@@ -3,10 +3,9 @@ use std::collections::HashMap;
 use crate::client::AuthClient;
 use reqwest::Url;
 use serde::Deserialize;
-use slack_http_types::team::Team;
 use thiserror::Error;
 
-pub use slack_http_types::team::Id;
+pub use slack_http_types::team::{Id, Team};
 
 const GET_TEAM_INFO: &str = "https://slack.com/api/team.info";
 
