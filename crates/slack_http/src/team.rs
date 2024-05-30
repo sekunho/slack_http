@@ -55,7 +55,7 @@ pub async fn get_team_info(
     params.insert(String::from("team"), team_id.0);
 
     let res = auth_client
-        .0
+        .client()
         .post(url)
         .form(&params)
         .send()

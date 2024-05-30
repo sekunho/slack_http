@@ -6,6 +6,8 @@ use url::Url;
 
 use crate::client::BasicClient;
 
+pub use slack_http_types::oauth::OauthToken;
+
 const V2_ACCESS: &str = "https://slack.com/api/oauth.v2.access";
 
 #[derive(Debug, Error)]
@@ -142,7 +144,7 @@ pub async fn v2_refresh_access(
     let url = Url::parse(V2_ACCESS).expect("not a URL");
 
     let res = basic_client
-        .0
+        .client()
         .post(url)
         .form(&params)
         .send()
@@ -180,7 +182,7 @@ pub async fn v2_access(
     let url = Url::parse(V2_ACCESS).expect("not a URL");
 
     let res = basic_client
-        .0
+        .client()
         .post(url)
         .form(&params)
         .send()

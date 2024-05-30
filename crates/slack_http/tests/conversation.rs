@@ -1,3 +1,4 @@
+use slack_http::oauth::OauthToken;
 use slack_http::{client::AuthClient, team, user, Cursor, Limit};
 
 pub struct TestEnv {
@@ -9,18 +10,22 @@ pub struct TestEnv {
 }
 
 fn setup() -> TestEnv {
-    let bat = std::env::var("SLACK_BOT_ACCESS_TOKEN").unwrap();
-    let uat = std::env::var("SLACK_USER_ACCESS_TOKEN").unwrap();
+    let bat = OauthToken::Bot(std::env::var("SLACK_BOT_ACCESS_TOKEN").unwrap());
+    let uat = OauthToken::User(std::env::var("SLACK_USER_ACCESS_TOKEN").unwrap());
     let team_id = std::env::var("SLACK_TEAM_ID").unwrap();
 
     let authed_bot_client = slack_http::client::AuthClient::new(bat).unwrap();
     let authed_user_client = slack_http::client::AuthClient::new(uat).unwrap();
 
     TestEnv {
-        invalid_bot_client: slack_http::client::AuthClient::new("HUHWHATTHISBE".to_string())
-            .unwrap(),
-        invalid_user_client: slack_http::client::AuthClient::new("HUHWHATTHISBE".to_string())
-            .unwrap(),
+        invalid_bot_client: slack_http::client::AuthClient::new(OauthToken::Bot(
+            "HUHWHATTHISBE".to_string(),
+        ))
+        .unwrap(),
+        invalid_user_client: slack_http::client::AuthClient::new(OauthToken::User(
+            "HUHWHATTHISBE".to_string(),
+        ))
+        .unwrap(),
         authed_bot_client,
         authed_user_client,
         team_id,

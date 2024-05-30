@@ -7,6 +7,10 @@ use crate::team;
 #[serde(transparent)]
 pub struct Token(pub String);
 
+/// Slack's temporary OAuth2 verifier code. Exchange this with an access token,
+/// and refresh token (if token rotation is enabled).
+pub struct Code(pub String);
+
 #[derive(Deserialize)]
 #[serde(untagged)]
 pub enum TokenResponse {

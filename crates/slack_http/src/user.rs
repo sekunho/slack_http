@@ -89,7 +89,7 @@ impl TryFrom<User> for ActiveUser {
 }
 
 pub async fn list_active_users(
-    client: &AuthClient,
+    auth_client: &AuthClient,
     team_id: crate::team::Id,
     cursor: Option<Cursor>,
 ) -> Result<(Vec<ActiveUser>, Option<Cursor>), ListActiveUsersError> {
@@ -100,8 +100,8 @@ pub async fn list_active_users(
         team_id.0
     );
 
-    let res = client
-        .0
+    let res = auth_client
+        .client()
         .post(url)
         .send()
         .await

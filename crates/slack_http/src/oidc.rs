@@ -6,35 +6,36 @@ use slack_http_types::{
 };
 use std::collections::HashMap;
 
-pub use slack_http_types::oidc::{Token, UserInfo};
+pub use slack_http_types::oidc::{Code, Token, UserInfo};
 
-const POST_OIDC_TOKEN: &str = "https://slack.com/api/openid.connect.token";
-const GET_USER_INFO: &str = "https://slack.com/api/openid.connect.userInfo";
+const OIDC_TOKEN: &str = "https://slack.com/api/openid.connect.token";
+const USER_INFO: &str = "https://slack.com/api/openid.connect.userInfo";
 
 pub async fn token(
-    BasicClient(basic_client): &BasicClient,
+    basic_client: &BasicClient,
     client_id: &str,
     client_secret: &str,
-    code: &str,
+    code: &Code,
     redirect_uri: &Url,
 ) -> Result<Token, Error> {
     let mut params = HashMap::new();
 
     params.insert("client_id", client_id);
     params.insert("client_secret", client_secret);
-    params.insert("code", code);
+    params.insert("code", code.0.as_str());
     params.insert("redirect_uri", redirect_uri.as_str());
 
-    let url = Url::parse(POST_OIDC_TOKEN)?;
+    let url = Url::parse(OIDC_TOKEN)?;
 
     let res = basic_client
+        .client()
         .post(url)
         .form(&params)
         .send()
         .await
         .map_err(Error::Request)?;
 
-    tracing::info!("POST {} -> {}", POST_OIDC_TOKEN, res.status());
+    tracing::info!("POST {} -> {}", OIDC_TOKEN, res.status());
 
     let json = res
         .json::<TokenResponse>()
@@ -47,10 +48,17 @@ pub async fn token(
     }
 }
 
-pub async fn user_info(AuthClient(auth_client): &AuthClient) -> Result<UserInfo, Error> {
-    let url = Url::parse(GET_USER_INFO).expect("not a URL lol");
-    let res = auth_client.get(url).send().await.map_err(Error::Request)?;
-    tracing::info!("GET {} -> {}", GET_USER_INFO, res.status());
+pub async fn user_info(auth_client: &AuthClient) -> Result<UserInfo, Error> {
+    let url = Url::parse(USER_INFO).expect("not a URL lol");
+
+    let res = auth_client
+        .client()
+        .get(url)
+        .send()
+        .await
+        .map_err(Error::Request)?;
+
+    tracing::info!("GET {} -> {}", USER_INFO, res.status());
 
     let json = res
         .json::<UserInfoResponse>()

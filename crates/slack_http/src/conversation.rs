@@ -10,7 +10,7 @@ use crate::client::AuthClient;
 pub use slack_http_types::conversation::{Conversation, Id, ListOptions};
 
 pub async fn members(
-    client: &AuthClient,
+    auth_client: &AuthClient,
     conversation_id: &Id,
     cursor: &Cursor,
     limit: Limit,
@@ -23,7 +23,7 @@ pub async fn members(
             ("limit", limit.get().to_string().as_str()),
         ],
     )?;
-    let res = client.0.post(url).send().await.map_err(Error::Request)?;
+    let res = auth_client.client().post(url).send().await.map_err(Error::Request)?;
 
     let json = res
         .json::<MembersResponse>()
@@ -39,7 +39,7 @@ pub async fn members(
     }
 }
 
-pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error> {
+pub async fn open(auth_client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.open",
         &[(
@@ -51,7 +51,7 @@ pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Er
                 .join(","),
         )],
     )?;
-    let res = client.0.post(url).send().await.map_err(Error::Request)?;
+    let res = auth_client.client().post(url).send().await.map_err(Error::Request)?;
 
     let json = res
         .json::<OpenResponse>()
@@ -65,7 +65,7 @@ pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Er
 }
 
 pub async fn invite<'channel_id>(
-    client: &AuthClient,
+    auth_client: &AuthClient,
     channel_id: &slack_http_types::conversation::Id,
     user_ids: Vec<slack_http_types::user::Id>,
 ) -> Result<(), Error> {
@@ -85,8 +85,8 @@ pub async fn invite<'channel_id>(
         ],
     )?;
 
-    let res = client
-        .0
+    let res = auth_client
+        .client()
         .post(url.as_str())
         .send()
         .await
@@ -108,7 +108,7 @@ pub async fn invite<'channel_id>(
 }
 
 pub async fn kick(
-    client: &AuthClient,
+    auth_client: &AuthClient,
     conversation_id: &slack_http_types::conversation::Id,
     user_id: &slack_http_types::user::Id,
 ) -> Result<(), Error> {
@@ -120,8 +120,8 @@ pub async fn kick(
         ],
     )?;
 
-    let res = client
-        .0
+    let res = auth_client
+        .client()
         .post(url.as_str())
         .send()
         .await
@@ -162,7 +162,7 @@ pub async fn list(
     tracing::info!("POST {}", url.to_string());
 
     let res = client
-        .0
+        .client()
         .post(url.as_str())
         .send()
         .await
