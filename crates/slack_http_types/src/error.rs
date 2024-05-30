@@ -1,9 +1,9 @@
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum Error<SlackError> {
+pub enum Error {
     #[error("slack failed to process request. reason: {0}")]
-    Slack(SlackError),
+    Slack(String),
     #[error("failed to send request to slack. reason: {0}")]
     Request(reqwest::Error),
     #[error("failed to deserialize slack response. reason: {0}")]
@@ -12,10 +12,10 @@ pub enum Error<SlackError> {
     Url(#[from] url::ParseError),
 }
 
-impl<SlackError> Error<SlackError> {
-    pub fn get_slack_error(&self) -> Option<&SlackError> {
+impl Error {
+    pub fn get_slack_error(&self) -> Option<&str> {
         match self {
-            Error::Slack(e) => Some(e),
+            Error::Slack(e) => Some(e.as_str()),
             _ => None,
         }
     }

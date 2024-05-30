@@ -126,7 +126,7 @@ async fn it_should_parse_post_message_error() {
     .await
     .unwrap_err();
 
-    assert_eq!(err.get_slack_error().unwrap().as_str(), "invalid_auth")
+    assert_eq!(err.get_slack_error().unwrap(), "invalid_auth")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -257,5 +257,5 @@ async fn it_should_parse_post_ephemeral_message_error() {
     .await
     .unwrap_err();
 
-    assert_eq!(err.get_slack_error().unwrap().as_str(), "invalid_auth")
+    assert_eq!(err.get_slack_error().unwrap(), "invalid_auth")
 }

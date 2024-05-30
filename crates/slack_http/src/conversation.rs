@@ -14,7 +14,7 @@ pub async fn members(
     conversation_id: &Id,
     cursor: &Cursor,
     limit: Limit,
-) -> Result<Page<user::Id>, Error<String>> {
+) -> Result<Page<user::Id>, Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.members",
         &[
@@ -39,7 +39,7 @@ pub async fn members(
     }
 }
 
-pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error<String>> {
+pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.open",
         &[(
@@ -68,7 +68,7 @@ pub async fn invite<'channel_id>(
     client: &AuthClient,
     channel_id: &slack_http_types::conversation::Id,
     user_ids: Vec<slack_http_types::user::Id>,
-) -> Result<(), Error<String>> {
+) -> Result<(), Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.invite",
         &[
@@ -111,7 +111,7 @@ pub async fn kick(
     client: &AuthClient,
     conversation_id: &slack_http_types::conversation::Id,
     user_id: &slack_http_types::user::Id,
-) -> Result<(), Error<String>> {
+) -> Result<(), Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.kick",
         &[
@@ -148,7 +148,7 @@ pub async fn list(
     team_id: &str,
     cursor: &Cursor,
     params: slack_http_types::conversation::ListOptions,
-) -> Result<Page<Conversation>, Error<String>> {
+) -> Result<Page<Conversation>, Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.list",
         &[

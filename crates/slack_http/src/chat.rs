@@ -15,7 +15,7 @@ pub async fn post_message(
     conversation_id: &conversation::Id,
     message: &str,
     opts: &MessageOptions,
-) -> Result<Message, Error<String>> {
+) -> Result<Message, Error> {
     let mut query_params = opts.query_params();
 
     query_params.push(("channel", conversation_id.as_str()));
@@ -41,7 +41,7 @@ pub async fn post_ephemeral(
     user_id: &user::Id,
     message: &str,
     opts: &MessageOptions,
-) -> Result<OffsetDateTime, Error<String>> {
+) -> Result<OffsetDateTime, Error> {
     let mut query_params = opts.query_params();
 
     query_params.push(("channel", conversation_id.as_str()));
