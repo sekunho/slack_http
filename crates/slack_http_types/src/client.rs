@@ -1,7 +1,7 @@
 use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
 use thiserror::Error;
 
-use crate::oauth::OauthToken;
+use crate::oauth::AccessToken;
 
 // TODO: Set visibility back to pub(crate)
 #[derive(Clone, Debug)]
@@ -19,7 +19,7 @@ pub enum CreateClientError {
 }
 
 impl AuthClient {
-    pub fn new(token: OauthToken) -> Result<Self, CreateClientError> {
+    pub fn new(token: AccessToken) -> Result<Self, CreateClientError> {
         let mut headers = HeaderMap::new();
         let bearer_token: HeaderValue = format!("Bearer {}", token.0).parse()?;
         headers.insert("Authorization", bearer_token);

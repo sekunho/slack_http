@@ -1,8 +1,5 @@
 use slack_http_types::{
-    conversation::{InviteResponse, KickResponse, MembersResponse, OpenResponse},
-    error::Error,
-    page::{Cursor, Limit, Page},
-    user,
+    conversation::{InviteResponse, KickResponse, MembersResponse, OpenResponse}, error::Error, page::{Cursor, Limit, Page}, team, user
 };
 use url::Url;
 
@@ -155,7 +152,7 @@ pub async fn kick(
 /// Lists channels/mpim/im in the Slack workspace
 pub async fn list(
     client: &AuthClient,
-    team_id: &str,
+    team_id: &team::Id,
     cursor: &Cursor,
     params: slack_http_types::conversation::ListOptions,
 ) -> Result<Page<Conversation>, Error> {
@@ -165,7 +162,7 @@ pub async fn list(
             ("cursor", cursor.as_str()),
             ("types", params.types_query_param().as_str()),
             ("limit", params.limit.get().to_string().as_str()),
-            ("team_id", team_id),
+            ("team_id", team_id.0.as_str()),
         ],
     )?;
 

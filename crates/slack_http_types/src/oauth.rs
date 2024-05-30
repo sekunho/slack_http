@@ -1,10 +1,10 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(transparent)]
-pub struct OauthToken(pub String);
+pub struct AccessToken(pub String);
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(transparent)]
 pub struct RefreshToken(pub String);
 
@@ -27,7 +27,7 @@ pub enum OAuthV2AccessResponse {
 #[derive(Debug, Deserialize)]
 pub struct Access {
     #[serde(rename = "access_token")]
-    pub bot_access_token: OauthToken,
+    pub bot_access_token: AccessToken,
     #[serde(rename = "refresh_token")]
     pub bot_refresh_token: RefreshToken,
     pub expires_in: u64,
@@ -42,7 +42,7 @@ pub struct Access {
 pub struct AuthedUser {
     pub id: String,
     pub scope: String,
-    pub access_token: OauthToken,
+    pub access_token: AccessToken,
     pub expires_in: u64,
     pub refresh_token: RefreshToken,
 }
@@ -57,8 +57,8 @@ pub enum OAuthV2RefreshResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct RefreshedAccess {
-    pub access_token: String,
-    pub refresh_token: String,
+    pub access_token: AccessToken,
+    pub refresh_token: RefreshToken,
     pub expires_in: u64,
     pub token_type: TokenType,
     pub scope: String,

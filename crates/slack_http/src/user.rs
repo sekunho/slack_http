@@ -90,7 +90,7 @@ impl TryFrom<User> for ActiveUser {
 
 pub async fn list_active_users(
     auth_client: &AuthClient,
-    team_id: crate::team::Id,
+    team_id: &crate::team::Id,
     cursor: Option<Cursor>,
 ) -> Result<(Vec<ActiveUser>, Option<Cursor>), ListActiveUsersError> {
     let url = format!(
