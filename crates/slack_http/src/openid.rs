@@ -1,11 +1,11 @@
 use crate::client::{AuthClient, BasicClient};
 use reqwest::Url;
 use slack_http_types::{
-    error::Error, oauth::{AccessToken, Code}, oidc::{TokenResponse, UserInfoResponse}
+    error::Error, oauth::{AccessToken, Code}, openid::{TokenResponse, UserInfoResponse}
 };
 use std::collections::HashMap;
 
-pub use slack_http_types::oidc::UserInfo;
+pub use slack_http_types::openid::UserInfo;
 
 const OIDC_TOKEN: &str = "https://slack.com/api/openid.connect.token";
 const USER_INFO: &str = "https://slack.com/api/openid.connect.userInfo";
