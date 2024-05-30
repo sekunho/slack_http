@@ -56,14 +56,14 @@ pub async fn v2_access(
     client_id: &str,
     client_secret: &str,
     code: &Code,
-    redirect_uri: &str,
+    redirect_uri: &Url,
 ) -> Result<Access, Error> {
     let mut params = HashMap::new();
 
     params.insert("client_id", client_id);
     params.insert("client_secret", client_secret);
     params.insert("code", code.0.as_str());
-    params.insert("redirect_uri", redirect_uri);
+    params.insert("redirect_uri", redirect_uri.as_str());
 
     let url = Url::parse(V2_ACCESS)?;
 
