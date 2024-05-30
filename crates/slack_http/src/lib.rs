@@ -9,7 +9,7 @@ pub mod client;
 pub mod conversation;
 pub mod emoji;
 pub mod oauth;
-pub mod oidc;
+pub mod openid;
 pub mod team;
 pub mod user;
 

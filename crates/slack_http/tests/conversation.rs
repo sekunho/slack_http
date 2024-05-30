@@ -1,3 +1,4 @@
+use slack_http::oauth::AccessToken;
 use slack_http::{client::AuthClient, team, user, Cursor, Limit};
 
 pub struct TestEnv {
@@ -5,22 +6,26 @@ pub struct TestEnv {
     pub authed_user_client: AuthClient,
     pub invalid_bot_client: AuthClient,
     pub invalid_user_client: AuthClient,
-    pub team_id: String,
+    pub team_id: team::Id,
 }
 
 fn setup() -> TestEnv {
-    let bat = std::env::var("SLACK_BOT_ACCESS_TOKEN").unwrap();
-    let uat = std::env::var("SLACK_USER_ACCESS_TOKEN").unwrap();
-    let team_id = std::env::var("SLACK_TEAM_ID").unwrap();
+    let bat = AccessToken(std::env::var("SLACK_BOT_ACCESS_TOKEN").unwrap());
+    let uat = AccessToken(std::env::var("SLACK_USER_ACCESS_TOKEN").unwrap());
+    let team_id = team::Id(std::env::var("SLACK_TEAM_ID").unwrap());
 
     let authed_bot_client = slack_http::client::AuthClient::new(bat).unwrap();
     let authed_user_client = slack_http::client::AuthClient::new(uat).unwrap();
 
     TestEnv {
-        invalid_bot_client: slack_http::client::AuthClient::new("HUHWHATTHISBE".to_string())
-            .unwrap(),
-        invalid_user_client: slack_http::client::AuthClient::new("HUHWHATTHISBE".to_string())
-            .unwrap(),
+        invalid_bot_client: slack_http::client::AuthClient::new(AccessToken(
+            "HUHWHATTHISBE".to_string(),
+        ))
+        .unwrap(),
+        invalid_user_client: slack_http::client::AuthClient::new(AccessToken(
+            "HUHWHATTHISBE".to_string(),
+        ))
+        .unwrap(),
         authed_bot_client,
         authed_user_client,
         team_id,
@@ -40,7 +45,7 @@ async fn it_should_list_channels() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_bot_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         opts,
     )
@@ -53,7 +58,7 @@ async fn it_should_list_channels() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         opts.include_public(false).include_private(true),
     )
@@ -77,7 +82,7 @@ async fn it_should_paginate_channels() {
 
     let channels_1 = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         opts,
     )
@@ -88,7 +93,7 @@ async fn it_should_paginate_channels() {
 
     let channels_2 = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         channels_1.cursor(),
         opts,
     )
@@ -109,7 +114,7 @@ async fn it_should_parse_list_error() {
 
     let err = slack_http::conversation::list(
         &test_env.invalid_bot_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         opts,
     )
@@ -126,19 +131,16 @@ async fn it_should_parse_list_error() {
 async fn it_should_invite_user() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -171,7 +173,7 @@ async fn it_should_parse_error() {
 
     let (users, _) = slack_http::user::list_active_users(
         &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
+        &test_env.team_id.clone(),
         None,
     )
     .await
@@ -181,7 +183,7 @@ async fn it_should_parse_error() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -219,7 +221,7 @@ async fn it_should_kick_user() {
 
     let (users, _) = slack_http::user::list_active_users(
         &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
+        &test_env.team_id.clone(),
         None,
     )
     .await
@@ -229,7 +231,7 @@ async fn it_should_kick_user() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -263,19 +265,16 @@ async fn it_should_kick_user() {
 async fn it_should_parse_kick_error() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -311,13 +310,10 @@ async fn it_should_parse_kick_error() {
 async fn it_should_open_conversation_with_users() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user_ids: Vec<user::Id> = users
         .into_iter()
@@ -334,13 +330,10 @@ async fn it_should_open_conversation_with_users() {
 async fn it_should_parse_open_conversation_error() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user_ids: Vec<user::Id> = users
         .into_iter()
@@ -364,7 +357,7 @@ async fn it_should_list_members() {
 
     let (users, _) = slack_http::user::list_active_users(
         &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
+        &test_env.team_id.clone(),
         None,
     )
     .await
@@ -381,7 +374,7 @@ async fn it_should_list_members() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         opts,
     )
@@ -418,7 +411,7 @@ async fn it_should_paginate_members() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         opts,
     )
@@ -465,7 +458,7 @@ async fn it_should_parse_members_error() {
 
     let err = slack_http::conversation::list(
         &test_env.invalid_bot_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         opts,
     )

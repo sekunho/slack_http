@@ -1,3 +1,4 @@
+use slack_http::oauth::AccessToken;
 use slack_http::{chat::MessageOptions, client::AuthClient, team, Cursor};
 
 pub struct TestEnv {
@@ -5,22 +6,26 @@ pub struct TestEnv {
     pub authed_user_client: AuthClient,
     pub invalid_bot_client: AuthClient,
     pub invalid_user_client: AuthClient,
-    pub team_id: String,
+    pub team_id: team::Id,
 }
 
 fn setup() -> TestEnv {
-    let bat = std::env::var("SLACK_BOT_ACCESS_TOKEN").unwrap();
-    let uat = std::env::var("SLACK_USER_ACCESS_TOKEN").unwrap();
-    let team_id = std::env::var("SLACK_TEAM_ID").unwrap();
+    let bat = AccessToken(std::env::var("SLACK_BOT_ACCESS_TOKEN").unwrap());
+    let uat = AccessToken(std::env::var("SLACK_USER_ACCESS_TOKEN").unwrap());
+    let team_id = team::Id(std::env::var("SLACK_TEAM_ID").unwrap());
 
     let authed_bot_client = slack_http::client::AuthClient::new(bat).unwrap();
     let authed_user_client = slack_http::client::AuthClient::new(uat).unwrap();
 
     TestEnv {
-        invalid_bot_client: slack_http::client::AuthClient::new("HUHWHATTHISBE".to_string())
-            .unwrap(),
-        invalid_user_client: slack_http::client::AuthClient::new("HUHWHATTHISBE".to_string())
-            .unwrap(),
+        invalid_bot_client: slack_http::client::AuthClient::new(AccessToken(
+            "HUHWHATTHISBE".to_string(),
+        ))
+        .unwrap(),
+        invalid_user_client: slack_http::client::AuthClient::new(AccessToken(
+            "HUHWHATTHISBE".to_string(),
+        ))
+        .unwrap(),
         authed_bot_client,
         authed_user_client,
         team_id,
@@ -39,7 +44,7 @@ async fn bot_should_post_message() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -72,7 +77,7 @@ async fn user_should_post_message() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -104,7 +109,7 @@ async fn it_should_parse_post_message_error() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -126,7 +131,7 @@ async fn it_should_parse_post_message_error() {
     .await
     .unwrap_err();
 
-    assert_eq!(err.get_slack_error().unwrap().as_str(), "invalid_auth")
+    assert_eq!(err.get_slack_error().unwrap(), "invalid_auth")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,7 +147,7 @@ async fn bot_should_post_ephemeral_message() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -155,13 +160,10 @@ async fn bot_should_post_ephemeral_message() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "OWNER").unwrap();
 
@@ -183,7 +185,7 @@ async fn user_should_post_ephemeral_message() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -196,13 +198,10 @@ async fn user_should_post_ephemeral_message() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "OWNER").unwrap();
 
@@ -224,7 +223,7 @@ async fn it_should_parse_post_ephemeral_message_error() {
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
-        test_env.team_id.as_str(),
+        &test_env.team_id,
         &Cursor(None),
         Default::default(),
     )
@@ -237,13 +236,10 @@ async fn it_should_parse_post_ephemeral_message_error() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) = slack_http::user::list_active_users(
-        &test_env.authed_user_client,
-        team::Id(test_env.team_id.clone()),
-        None,
-    )
-    .await
-    .unwrap();
+    let (users, _) =
+        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
+            .await
+            .unwrap();
 
     let user = users.iter().find(|u| u.name == "OWNER").unwrap();
 
@@ -257,5 +253,5 @@ async fn it_should_parse_post_ephemeral_message_error() {
     .await
     .unwrap_err();
 
-    assert_eq!(err.get_slack_error().unwrap().as_str(), "invalid_auth")
+    assert_eq!(err.get_slack_error().unwrap(), "invalid_auth")
 }

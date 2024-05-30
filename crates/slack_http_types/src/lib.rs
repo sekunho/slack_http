@@ -4,10 +4,14 @@ use serde::{de, Deserialize, Deserializer};
 use time::OffsetDateTime;
 
 pub mod chat;
+pub mod client;
 pub mod conversation;
 pub mod error;
+pub mod oauth;
+pub mod openid;
 pub mod option;
 pub mod page;
+pub mod team;
 pub mod user;
 
 /// Deserializes a UNIX timestamp with milliseconds into an `OffsetDateTime`.

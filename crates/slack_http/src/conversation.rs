@@ -2,7 +2,7 @@ use slack_http_types::{
     conversation::{InviteResponse, KickResponse, MembersResponse, OpenResponse},
     error::Error,
     page::{Cursor, Limit, Page},
-    user,
+    team, user,
 };
 use url::Url;
 
@@ -10,11 +10,11 @@ use crate::client::AuthClient;
 pub use slack_http_types::conversation::{Conversation, Id, ListOptions};
 
 pub async fn members(
-    client: &AuthClient,
+    auth_client: &AuthClient,
     conversation_id: &Id,
     cursor: &Cursor,
     limit: Limit,
-) -> Result<Page<user::Id>, Error<String>> {
+) -> Result<Page<user::Id>, Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.members",
         &[
@@ -23,7 +23,12 @@ pub async fn members(
             ("limit", limit.get().to_string().as_str()),
         ],
     )?;
-    let res = client.0.post(url).send().await.map_err(Error::Request)?;
+    let res = auth_client
+        .client()
+        .post(url)
+        .send()
+        .await
+        .map_err(Error::Request)?;
 
     let json = res
         .json::<MembersResponse>()
@@ -39,7 +44,7 @@ pub async fn members(
     }
 }
 
-pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error<String>> {
+pub async fn open(auth_client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.open",
         &[(
@@ -51,7 +56,12 @@ pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Er
                 .join(","),
         )],
     )?;
-    let res = client.0.post(url).send().await.map_err(Error::Request)?;
+    let res = auth_client
+        .client()
+        .post(url)
+        .send()
+        .await
+        .map_err(Error::Request)?;
 
     let json = res
         .json::<OpenResponse>()
@@ -65,10 +75,10 @@ pub async fn open(client: &AuthClient, user_ids: Vec<user::Id>) -> Result<Id, Er
 }
 
 pub async fn invite<'channel_id>(
-    client: &AuthClient,
+    auth_client: &AuthClient,
     channel_id: &slack_http_types::conversation::Id,
     user_ids: Vec<slack_http_types::user::Id>,
-) -> Result<(), Error<String>> {
+) -> Result<(), Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.invite",
         &[
@@ -85,8 +95,8 @@ pub async fn invite<'channel_id>(
         ],
     )?;
 
-    let res = client
-        .0
+    let res = auth_client
+        .client()
         .post(url.as_str())
         .send()
         .await
@@ -108,10 +118,10 @@ pub async fn invite<'channel_id>(
 }
 
 pub async fn kick(
-    client: &AuthClient,
+    auth_client: &AuthClient,
     conversation_id: &slack_http_types::conversation::Id,
     user_id: &slack_http_types::user::Id,
-) -> Result<(), Error<String>> {
+) -> Result<(), Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.kick",
         &[
@@ -120,8 +130,8 @@ pub async fn kick(
         ],
     )?;
 
-    let res = client
-        .0
+    let res = auth_client
+        .client()
         .post(url.as_str())
         .send()
         .await
@@ -145,24 +155,24 @@ pub async fn kick(
 /// Lists channels/mpim/im in the Slack workspace
 pub async fn list(
     client: &AuthClient,
-    team_id: &str,
+    team_id: &team::Id,
     cursor: &Cursor,
     params: slack_http_types::conversation::ListOptions,
-) -> Result<Page<Conversation>, Error<String>> {
+) -> Result<Page<Conversation>, Error> {
     let url = Url::parse_with_params(
         "https://slack.com/api/conversations.list",
         &[
             ("cursor", cursor.as_str()),
             ("types", params.types_query_param().as_str()),
             ("limit", params.limit.get().to_string().as_str()),
-            ("team_id", team_id),
+            ("team_id", team_id.0.as_str()),
         ],
     )?;
 
     tracing::info!("POST {}", url.to_string());
 
     let res = client
-        .0
+        .client()
         .post(url.as_str())
         .send()
         .await
