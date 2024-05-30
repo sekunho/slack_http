@@ -5,8 +5,8 @@ pub struct Cursor(pub Option<String>);
 
 #[derive(Debug)]
 pub struct Page<T> {
-    pub(crate) results: Vec<T>,
-    pub(crate) cursor: Cursor,
+    pub results: Vec<T>,
+    pub cursor: Cursor,
 }
 
 #[derive(Debug, Deserialize)]
