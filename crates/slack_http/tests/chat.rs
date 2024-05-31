@@ -170,7 +170,11 @@ async fn bot_should_post_ephemeral_message() {
     .await
     .unwrap();
 
-    let user = page.results.iter().find(|u| u.profile.display_name == "OWNER").unwrap();
+    let user = page
+        .results
+        .iter()
+        .find(|u| u.profile.display_name == "OWNER")
+        .unwrap();
 
     let _message = slack_http::chat::post_ephemeral(
         &test_env.authed_bot_client,
