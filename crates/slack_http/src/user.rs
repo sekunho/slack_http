@@ -1,9 +1,9 @@
 use crate::client::AuthClient;
-pub use slack_http_types::user::Id;
+pub use slack_http_types::user::{Id, User};
 use slack_http_types::{
     error::Error,
     page::{Cursor, Limit, Page},
-    user::{ListResponse, User},
+    user::ListResponse,
 };
 use url::Url;
 
