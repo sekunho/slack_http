@@ -27,9 +27,20 @@ pub struct User {
 
 #[derive(Debug, Deserialize)]
 pub struct Profile {
-    #[serde(rename = "image_512")]
-    pub picture_url: Url,
+    pub image_24: Url,
+    pub image_32: Url,
+    pub image_48: Url,
+    pub image_72: Url,
+    pub image_192: Url,
+    pub image_512: Url,
+    pub avatar_hash: String,
+    pub status_text: String,
+    pub status_emoji: String,
+    pub display_name: String,
+    pub display_name_normalized: String,
     pub real_name: String,
+    pub real_name_normalized: String,
+    pub email: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

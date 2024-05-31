@@ -45,6 +45,15 @@ async fn it_should_get_user_info() {
     )
     .await
     .unwrap();
+
+    let _users = user::list(
+        &test_env.authed_bot_client,
+        Some(&test_env.team_id),
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 }
 
 #[tokio::test]
