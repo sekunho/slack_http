@@ -9,7 +9,7 @@ deserializing its response -- no mocks!
 Since this library depends on integration tests, there's some setup required for
 you to run them locally.
 
-1. Create a simple Slack [app](https:://api.slack.com/apps) with the following
+1. Create a simple Slack [app](https://api.slack.com/apps) with the following
 manifest:
 
 ```yaml
