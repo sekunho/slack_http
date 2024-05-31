@@ -1,63 +1,38 @@
-use std::collections::HashMap;
-
 use crate::client::AuthClient;
 use reqwest::Url;
 use serde::Deserialize;
-use thiserror::Error;
+use slack_http_types::{error::Error, team::InfoResponse};
 
 pub use slack_http_types::team::{Id, Team};
 
 const GET_TEAM_INFO: &str = "https://slack.com/api/team.info";
 
-#[derive(Deserialize)]
-#[serde(untagged)]
-pub enum GetTeamInfoResponse {
-    Ok { team: Team },
-    Error { error: SlackGetTeamInfoError },
-}
-
-#[derive(Debug, Error)]
-pub enum GetTeamInfoError {
-    #[error("failed when requesting slack to process request")]
-    Request(reqwest::Error),
-    #[error("failed to deserialize slack response")]
-    Deserialize(reqwest::Error),
-    #[error("slack failed to process request")]
-    Slack(SlackGetTeamInfoError),
-}
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum SlackGetTeamInfoError {}
+pub enum SlackError {}
 
-pub async fn get_team_info(
-    auth_client: &AuthClient,
-    team_id: Id,
-) -> Result<Team, GetTeamInfoError> {
-    let mut params: HashMap<String, String> = HashMap::new();
-    let url = Url::parse(GET_TEAM_INFO).expect("not a URL lol");
-
-    params.insert(String::from("team"), team_id.0);
+pub async fn info(auth_client: &AuthClient, team_id: &Id) -> Result<Team, Error> {
+    let url = Url::parse_with_params(GET_TEAM_INFO, &[("team", team_id.0.as_str())])?;
 
     let res = auth_client
         .client()
-        .post(url)
-        .form(&params)
+        .get(url)
         .send()
         .await
-        .map_err(GetTeamInfoError::Request)?;
+        .map_err(Error::Request)?;
+
+    tracing::info!("GET {} -> {}", GET_TEAM_INFO, res.status());
 
     let json = res
-        .json::<GetTeamInfoResponse>()
+        .json::<InfoResponse>()
         .await
-        .map_err(GetTeamInfoError::Deserialize)?;
+        .map_err(Error::Deserialize)?;
 
     match json {
-        GetTeamInfoResponse::Ok { team } => Ok(team),
-        GetTeamInfoResponse::Error { error } => {
-            // TODO: print out reason
+        InfoResponse::Ok { team } => Ok(team),
+        InfoResponse::Error { error } => {
             tracing::error!("failed to get team info from Slack");
-            Err(GetTeamInfoError::Slack(error))
+            Err(Error::Slack(error))
         }
     }
 }

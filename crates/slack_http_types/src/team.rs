@@ -19,3 +19,10 @@ pub struct Team {
 pub struct Icon {
     pub image_132: Url,
 }
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub enum InfoResponse {
+    Ok { team: Team },
+    Error { error: String },
+}
