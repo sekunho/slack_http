@@ -34,7 +34,7 @@ fn setup() -> TestEnv {
 }
 
 #[tokio::test]
-async fn it_should_get_user_info() {
+async fn it_should_list_users() {
     let test_env = setup();
 
     let _users = user::list(
@@ -57,7 +57,7 @@ async fn it_should_get_user_info() {
 }
 
 #[tokio::test]
-async fn it_should_parse_get_user_info_error() {
+async fn it_should_parse_list_users_error() {
     let test_env = setup();
 
     let err = user::list(
