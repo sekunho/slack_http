@@ -35,6 +35,7 @@ oauth_config:
       - im:write
       - mpim:write
       - users:read
+      - users:read.email
       - chat:write
       - team:read
     bot:
@@ -51,6 +52,7 @@ oauth_config:
       - im:write
       - mpim:write
       - users:read
+      - users:read.email
       - chat:write
       - chat:write.customize
       - team:read
@@ -60,15 +62,18 @@ settings:
   token_rotation_enabled: false
 ```
 
-2. Ensure the following channels are present in your test WS.
+2. Ensure the following users with the following `display_name`s are present
+
+  - `OWNER`: (admin & owner)
+  - `MEMBER_1`: (regular member)
+
+3. Ensure the following channels are present in your test WS.
 
 | name                | visibility | members          |
 |---------------------|------------|------------------|
 | general             | public     | OWNER,slack_http |
-| test_invite         | public     |                  |
+| test_invite         | public     | OWNER            |
 | test_kick           | public     | OWNER            |
 | secret              | private    | OWNER            |
 | test_post_message   | public     | OWNER,slack_http |
 | test_post_ephemeral | public     | OWNER,slack_http |
-
-Make sure that the user that created the WS/owns the WS is called `OWNER`.
