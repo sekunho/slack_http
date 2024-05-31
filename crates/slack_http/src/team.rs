@@ -1,15 +1,9 @@
 use crate::client::AuthClient;
 use reqwest::Url;
-use serde::Deserialize;
+pub use slack_http_types::team::{Id, Team};
 use slack_http_types::{error::Error, team::InfoResponse};
 
-pub use slack_http_types::team::{Id, Team};
-
 const GET_TEAM_INFO: &str = "https://slack.com/api/team.info";
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum SlackError {}
 
 pub async fn info(auth_client: &AuthClient, team_id: &Id) -> Result<Team, Error> {
     let url = Url::parse_with_params(GET_TEAM_INFO, &[("team", team_id.0.as_str())])?;
