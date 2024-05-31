@@ -11,7 +11,7 @@ const LIST: &str = "https://slack.com/api/users.list";
 
 pub async fn list(
     auth_client: &AuthClient,
-    team_id: Option<&crate::team::Id>,
+    team_id: &crate::team::Id,
     cursor: &Cursor,
     limit: &Limit,
 ) -> Result<Page<User>, Error> {
@@ -20,7 +20,7 @@ pub async fn list(
     let url = Url::parse_with_params(
         LIST,
         &[
-            ("team_id", team_id.map(|tid| tid.0.as_str()).unwrap_or("")),
+            ("team_id", team_id.0.as_str()),
             ("limit", limit.as_str()),
             ("cursor", cursor.as_str()),
             ("include_locale", "true"),

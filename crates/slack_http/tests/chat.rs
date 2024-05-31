@@ -1,4 +1,5 @@
 use slack_http::oauth::AccessToken;
+use slack_http::Limit;
 use slack_http::{chat::MessageOptions, client::AuthClient, team, Cursor};
 
 pub struct TestEnv {
@@ -160,12 +161,16 @@ async fn bot_should_post_ephemeral_message() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) =
-        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
-            .await
-            .unwrap();
+    let page = slack_http::user::list(
+        &test_env.authed_user_client,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 
-    let user = users.iter().find(|u| u.name == "OWNER").unwrap();
+    let user = page.results.iter().find(|u| u.profile.display_name == "OWNER").unwrap();
 
     let _message = slack_http::chat::post_ephemeral(
         &test_env.authed_bot_client,
@@ -193,17 +198,25 @@ async fn user_should_post_ephemeral_message() {
     .unwrap();
 
     let test_channel = channels
-        .results()
+        .results
         .iter()
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) =
-        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
-            .await
-            .unwrap();
+    let page = slack_http::user::list(
+        &test_env.authed_user_client,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 
-    let user = users.iter().find(|u| u.name == "OWNER").unwrap();
+    let user = page
+        .results
+        .into_iter()
+        .find(|u| u.profile.display_name == "OWNER")
+        .unwrap();
 
     let _message = slack_http::chat::post_ephemeral(
         &test_env.authed_user_client,
@@ -236,12 +249,20 @@ async fn it_should_parse_post_ephemeral_message_error() {
         .find(|c| c.name == "test_post_ephemeral")
         .unwrap();
 
-    let (users, _) =
-        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
-            .await
-            .unwrap();
+    let page = slack_http::user::list(
+        &test_env.authed_user_client,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 
-    let user = users.iter().find(|u| u.name == "OWNER").unwrap();
+    let user = page
+        .results
+        .iter()
+        .find(|u| u.profile.display_name == "OWNER")
+        .unwrap();
 
     let err = slack_http::chat::post_ephemeral(
         &test_env.invalid_bot_client,

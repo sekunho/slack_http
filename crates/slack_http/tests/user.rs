@@ -39,7 +39,7 @@ async fn it_should_list_users() {
 
     let _users = user::list(
         &test_env.authed_user_client,
-        Some(&test_env.team_id),
+        &test_env.team_id,
         &Cursor(None),
         &Limit::default(),
     )
@@ -48,7 +48,7 @@ async fn it_should_list_users() {
 
     let _users = user::list(
         &test_env.authed_bot_client,
-        Some(&test_env.team_id),
+        &test_env.team_id,
         &Cursor(None),
         &Limit::default(),
     )
@@ -62,7 +62,7 @@ async fn it_should_parse_list_users_error() {
 
     let err = user::list(
         &test_env.invalid_user_client,
-        Some(&test_env.team_id),
+        &test_env.team_id,
         &Cursor(None),
         &Limit::default(),
     )
