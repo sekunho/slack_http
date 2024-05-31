@@ -64,7 +64,7 @@ settings:
 
 | name                | visibility | members          |
 |---------------------|------------|------------------|
-| general             | public     | OWNER            |
+| general             | public     | OWNER,slack_http |
 | test_invite         | public     |                  |
 | test_kick           | public     | OWNER            |
 | secret              | private    | OWNER            |

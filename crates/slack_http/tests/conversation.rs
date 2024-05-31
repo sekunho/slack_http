@@ -131,12 +131,20 @@ async fn it_should_parse_list_error() {
 async fn it_should_invite_user() {
     let test_env = setup();
 
-    let (users, _) =
-        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
-            .await
-            .unwrap();
+    let page = slack_http::user::list(
+        &test_env.authed_user_client,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 
-    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
+    let member_1 = page
+        .results
+        .iter()
+        .find(|u| u.profile.display_name == "MEMBER_1")
+        .unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -148,20 +156,23 @@ async fn it_should_invite_user() {
     .unwrap();
 
     let test_channel = channels
-        .results()
-        .iter()
+        .results
+        .into_iter()
         .find(|c| c.name == "test_invite")
         .unwrap();
 
     // Pre-emptively kick
-    let _ =
-        slack_http::conversation::kick(&test_env.authed_user_client, &test_channel.id, &user.id)
-            .await;
+    let _ = slack_http::conversation::kick(
+        &test_env.authed_user_client,
+        &test_channel.id,
+        &member_1.id,
+    )
+    .await;
 
     slack_http::conversation::invite(
         &test_env.authed_user_client,
         &test_channel.id,
-        vec![user.clone().id],
+        vec![member_1.id.clone()],
     )
     .await
     .unwrap()
@@ -171,15 +182,20 @@ async fn it_should_invite_user() {
 async fn it_should_parse_error() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
+    let page = slack_http::user::list(
         &test_env.authed_user_client,
-        &test_env.team_id.clone(),
-        None,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
     )
     .await
     .unwrap();
 
-    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
+    let user = page
+        .results
+        .iter()
+        .find(|u| u.profile.display_name == "MEMBER_1")
+        .unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -204,7 +220,7 @@ async fn it_should_parse_error() {
     let err = slack_http::conversation::invite(
         &test_env.invalid_user_client,
         &test_channel.id,
-        vec![user.clone().id],
+        vec![user.id.clone()],
     )
     .await
     .unwrap_err();
@@ -219,15 +235,20 @@ async fn it_should_parse_error() {
 async fn it_should_kick_user() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
+    let page = slack_http::user::list(
         &test_env.authed_user_client,
-        &test_env.team_id.clone(),
-        None,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
     )
     .await
     .unwrap();
 
-    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
+    let user = page
+        .results
+        .into_iter()
+        .find(|u| u.profile.display_name == "MEMBER_1")
+        .unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -248,29 +269,33 @@ async fn it_should_kick_user() {
     let _ = slack_http::conversation::invite(
         &test_env.authed_user_client,
         &test_channel.id,
-        vec![user.clone().id],
+        vec![user.id.clone()],
     )
     .await;
 
-    slack_http::conversation::kick(
-        &test_env.authed_user_client,
-        &test_channel.id,
-        &user.clone().id,
-    )
-    .await
-    .unwrap();
+    slack_http::conversation::kick(&test_env.authed_user_client, &test_channel.id, &user.id)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
 async fn it_should_parse_kick_error() {
     let test_env = setup();
 
-    let (users, _) =
-        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
-            .await
-            .unwrap();
+    let page = slack_http::user::list(
+        &test_env.authed_user_client,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 
-    let user = users.iter().find(|u| u.name == "SOCIAL").unwrap();
+    let user = page
+        .results
+        .iter()
+        .find(|u| u.profile.display_name == "MEMBER_1")
+        .unwrap();
 
     let channels = slack_http::conversation::list(
         &test_env.authed_user_client,
@@ -295,7 +320,7 @@ async fn it_should_parse_kick_error() {
     let err = slack_http::conversation::invite(
         &test_env.invalid_user_client,
         &test_channel.id,
-        vec![user.clone().id],
+        vec![user.id.clone()],
     )
     .await
     .unwrap_err();
@@ -310,12 +335,17 @@ async fn it_should_parse_kick_error() {
 async fn it_should_open_conversation_with_users() {
     let test_env = setup();
 
-    let (users, _) =
-        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
-            .await
-            .unwrap();
+    let page = slack_http::user::list(
+        &test_env.authed_user_client,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 
-    let user_ids: Vec<user::Id> = users
+    let user_ids: Vec<user::Id> = page
+        .results
         .into_iter()
         .filter(|u| u.id.0.as_str() != "USLACKBOT")
         .map(|u| u.id)
@@ -330,12 +360,17 @@ async fn it_should_open_conversation_with_users() {
 async fn it_should_parse_open_conversation_error() {
     let test_env = setup();
 
-    let (users, _) =
-        slack_http::user::list_active_users(&test_env.authed_user_client, &test_env.team_id, None)
-            .await
-            .unwrap();
+    let page = slack_http::user::list(
+        &test_env.authed_user_client,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
+    )
+    .await
+    .unwrap();
 
-    let user_ids: Vec<user::Id> = users
+    let user_ids: Vec<user::Id> = page
+        .results
         .into_iter()
         .filter(|u| u.id.0.as_str() != "USLACKBOT")
         .map(|u| u.id)
@@ -355,15 +390,17 @@ async fn it_should_parse_open_conversation_error() {
 async fn it_should_list_members() {
     let test_env = setup();
 
-    let (users, _) = slack_http::user::list_active_users(
+    let page = slack_http::user::list(
         &test_env.authed_user_client,
-        &test_env.team_id.clone(),
-        None,
+        &test_env.team_id,
+        &Cursor(None),
+        &Limit::default(),
     )
     .await
     .unwrap();
 
-    let users: Vec<_> = users
+    let users: Vec<_> = page
+        .results
         .iter()
         .filter(|u| u.id.as_str() != "USLACKBOT")
         .collect();
