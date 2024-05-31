@@ -162,9 +162,12 @@ async fn it_should_invite_user() {
         .unwrap();
 
     // Pre-emptively kick
-    let _ =
-        slack_http::conversation::kick(&test_env.authed_user_client, &test_channel.id, &member_1.id)
-            .await;
+    let _ = slack_http::conversation::kick(
+        &test_env.authed_user_client,
+        &test_channel.id,
+        &member_1.id,
+    )
+    .await;
 
     slack_http::conversation::invite(
         &test_env.authed_user_client,
