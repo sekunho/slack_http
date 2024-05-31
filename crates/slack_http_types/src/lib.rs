@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+
 use std::num::ParseIntError;
 
 use serde::{de, Deserialize, Deserializer};
