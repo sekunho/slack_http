@@ -402,7 +402,7 @@ async fn it_should_list_members() {
     let users: Vec<_> = page
         .results
         .iter()
-        .filter(|u| u.id.as_str() != "USLACKBOT")
+        .filter(|u| u.id.as_str() != "USLACKBOT" && u.profile.real_name.as_str() != "Polly")
         .collect();
 
     let opts = slack_http::conversation::ListOptions::new()

@@ -13,16 +13,16 @@ pub struct Id(pub String);
 pub struct User {
     pub id: Id,
     pub deleted: bool,
+    pub is_admin: Option<bool>,
+    pub is_owner: Option<bool>,
     pub is_bot: bool,
     pub is_app_user: bool,
-    pub is_admin: bool,
-    pub is_owner: bool,
-    pub is_restricted: bool,
-    pub is_ultra_restricted: bool,
     pub profile: Profile,
-    pub tz: String,
-    pub tz_label: String,
-    pub tz_offset: i64,
+    pub is_restricted: Option<bool>,
+    pub is_ultra_restricted: Option<bool>,
+    pub tz: Option<String>,
+    pub tz_label: Option<String>,
+    pub tz_offset: Option<i64>,
 }
 
 #[derive(Debug, Deserialize)]
