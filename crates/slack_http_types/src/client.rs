@@ -25,6 +25,7 @@ impl AuthClient {
         headers.insert("Authorization", bearer_token);
 
         let client = reqwest::Client::builder()
+            .connection_verbose(true)
             .default_headers(headers)
             .build()?;
 
@@ -38,7 +39,9 @@ impl AuthClient {
 
 impl BasicClient {
     pub fn new() -> Result<BasicClient, CreateClientError> {
-        let client = reqwest::Client::builder().build()?;
+        let client = reqwest::Client::builder()
+            .connection_verbose(true)
+            .build()?;
 
         Ok(BasicClient(client))
     }
