@@ -67,6 +67,8 @@ settings:
   - `OWNER`: (admin & owner)
   - `MEMBER_1`: (regular member)
 
+Also, I added the _Polly_ bot because bots have missing fields apparently.
+
 3. Ensure the following channels are present in your test WS.
 
 | name                | visibility | members          |
