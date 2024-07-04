@@ -29,10 +29,20 @@ pub async fn list(
 
     let res = auth_client
         .client()
+        .get(url.clone())
+        .send()
+        .await
+        .map_err(Error::Request)?;
+
+    tracing::debug!("{:#?}", res.text().await);
+
+    let res = auth_client
+        .client()
         .get(url)
         .send()
         .await
         .map_err(Error::Request)?;
+
 
     let json = res
         .json::<ListResponse>()
