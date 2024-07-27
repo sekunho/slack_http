@@ -9,58 +9,8 @@ deserializing its response -- no mocks!
 Since this library depends on integration tests, there's some setup required for
 you to run them locally.
 
-1. Create a simple Slack [app](https://api.slack.com/apps) with the following
-manifest:
-
-```yaml
-display_information:
-  name: slack_http
-features:
-  bot_user:
-    display_name: slack_http
-    always_online: false
-oauth_config:
-  scopes:
-    user:
-      - channels:read
-      - groups:read
-      - im:read
-      - mpim:read
-      - channels:write.invites
-      - groups:write.invites
-      - mpim:write.invites
-      - im:write.invites
-      - channels:write
-      - groups:write
-      - im:write
-      - mpim:write
-      - users:read
-      - users:read.email
-      - chat:write
-      - team:read
-    bot:
-      - channels:read
-      - groups:read
-      - im:read
-      - mpim:read
-      - channels:write.invites
-      - groups:write.invites
-      - mpim:write.invites
-      - im:write.invites
-      - channels:manage
-      - groups:write
-      - im:write
-      - mpim:write
-      - users:read
-      - users:read.email
-      - chat:write
-      - chat:write.customize
-      - team:read
-settings:
-  org_deploy_enabled: false
-  socket_mode_enabled: false
-  token_rotation_enabled: false
-```
+1. Create a simple Slack [app](https://api.slack.com/apps). See [slack_manifest.json](./slack_manifest.json)
+for the exact manifest.
 
 2. Ensure the following users with the following `display_name`s are present
 

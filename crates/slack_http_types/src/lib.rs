@@ -8,6 +8,7 @@ use time::OffsetDateTime;
 pub mod chat;
 pub mod client;
 pub mod conversation;
+pub mod emoji;
 pub mod error;
 pub mod oauth;
 pub mod openid;
