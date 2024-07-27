@@ -43,7 +43,9 @@ async fn it_should_list_emojis() {
 #[tokio::test]
 async fn it_should_parse_list_emojis_error() {
     let test_env = setup();
-    let err = emoji::list(&test_env.invalid_user_client).await.unwrap_err();
+    let err = emoji::list(&test_env.invalid_user_client)
+        .await
+        .unwrap_err();
 
     assert_eq!(err.get_slack_error().unwrap(), "invalid_auth");
 }
