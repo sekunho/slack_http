@@ -1,17 +1,14 @@
 name: CI
-
 on:
+  workflow_dispatch:
   pull_request:
-
   push:
     branches:
       - main
-
 env:
   SLACK_USER_ACCESS_TOKEN: ${{ secrets.SLACK_USER_ACCESS_TOKEN }}
   SLACK_BOT_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_ACCESS_TOKEN }}
   SLACK_TEAM_ID: ${{ secrets.SLACK_TEAM_ID }}
-
 jobs:
   checks:
     runs-on: [ubuntu-latest]
@@ -24,23 +21,18 @@ jobs:
         extra_nix_config: |
           trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
           substituters = https://cache.nixos.org/
-
     - run: nix flake check
-
   slack_http_test:
     runs-on: [ubuntu-latest]
     concurrency:
       group: slack_http_test
       cancel-in-progress: true
-
     steps:
     - uses: actions/checkout@v4
-
     - uses: cachix/install-nix-action@v27
       with:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
         extra_nix_config: |
           trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
           substituters = https://cache.nixos.org/
-
     - run: nix develop .#default --command cargo test
