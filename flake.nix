@@ -9,16 +9,12 @@
       inputs.rust-analyzer-src.follows = "";
     };
 
-
     advisory-db = {
       url = "github:rustsec/advisory-db";
       flake = false;
     };
 
-    crane = {
-      url = "github:ipetkov/crane";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs = { self, nixpkgs, flake-utils, fenix, advisory-db, crane }:
